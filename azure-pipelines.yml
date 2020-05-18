@@ -25,7 +25,7 @@ pr:
     include:
     - azure-pipelines.yml
     - azure_pipelines/*
-    - Ultraleap/*
+    - XRTK.Ultraleap/*
     exclude:
       - '*'
       - XRTK.Ultraleap/Packages/com.xrtk.ultraleap/README.md
@@ -41,7 +41,7 @@ trigger:
     include:
       - azure-pipelines.yml
       - azure_pipelines/*
-      - Ultraleap/*
+      - XRTK.Ultraleap/*
     exclude:
       - '*'
       - XRTK.Ultraleap/Packages/com.xrtk.ultraleap/README.md
