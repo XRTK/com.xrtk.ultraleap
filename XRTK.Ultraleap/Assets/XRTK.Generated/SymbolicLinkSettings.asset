@@ -13,6 +13,8 @@ MonoBehaviour:
   m_Name: SymbolicLinkSettings
   m_EditorClassIdentifier: 
   symbolicLinks:
-  - sourceRelativePath: /XRTK.PlatformName/Packages/com.xrtk.platformname/Profiles~
-    targetRelativePath: /XRTK.PlatformName/Assets/PlatformName/Profiles
+  - sourceRelativePath: /XRTK.Ultraleap/Packages/com.xrtk.ultraleap/Profiles~
+    targetRelativePath: /XRTK.Ultraleap/Assets/Ultraleap/Profiles
     isActive: 1
+
+
