@@ -1,7 +1,7 @@
 {
-  "name": "com.xrtk.platformname",
-  "displayName": "XRTK.PlatformName",
-  "description": "The PlatformName components for the Mixed Reality Toolkit.",
+  "name": "com.xrtk.ultraleap",
+  "displayName": "XRTK.Ultraleap",
+  "description": "The Ultraleap components for the Mixed Reality Toolkit.",
   "keywords": [
     "xrtk",
     "vr",
@@ -24,3 +24,4 @@
     }
   ]
 }
+

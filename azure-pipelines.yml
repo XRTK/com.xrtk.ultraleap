@@ -1,7 +1,7 @@
 variables:
-  project.name: 'XRTK.PlatformName'
+  project.name: 'XRTK.Ultraleap'
   project.upmSha: ''
-  package.name: 'com.xrtk.platformname'
+  package.name: 'com.xrtk.ultraleap'
   package.version: ''
   EditorPath: ''
   LogDirectory: ''
@@ -25,12 +25,12 @@ pr:
     include:
     - azure-pipelines.yml
     - azure_pipelines/*
-    - PlatformName/*
+    - Ultraleap/*
     exclude:
       - '*'
-      - XRTK.PlatformName/Packages/com.xrtk.platformname/README.md
-      - XRTK.PlatformName/Packages/com.xrtk.platformname/LICENSE.md
-      - XRTK.PlatformName/Packages/com.xrtk.platformname/.github/*
+      - XRTK.Ultraleap/Packages/com.xrtk.ultraleap/README.md
+      - XRTK.Ultraleap/Packages/com.xrtk.ultraleap/LICENSE.md
+      - XRTK.Ultraleap/Packages/com.xrtk.ultraleap/.github/*
 
 trigger:
   batch: true
@@ -41,13 +41,15 @@ trigger:
     include:
       - azure-pipelines.yml
       - azure_pipelines/*
-      - PlatformName/*
+      - Ultraleap/*
     exclude:
       - '*'
-      - XRTK.PlatformName/Packages/com.xrtk.platformname/README.md
-      - XRTK.PlatformName/Packages/com.xrtk.platformname/LICENSE.md
-      - XRTK.PlatformName/Packages/com.xrtk.platformname/.github/*
+      - XRTK.Ultraleap/Packages/com.xrtk.ultraleap/README.md
+      - XRTK.Ultraleap/Packages/com.xrtk.ultraleap/LICENSE.md
+      - XRTK.Ultraleap/Packages/com.xrtk.ultraleap/.github/*
 
 extends:
   template: azure_pipelines/common.yml
+
+
 
