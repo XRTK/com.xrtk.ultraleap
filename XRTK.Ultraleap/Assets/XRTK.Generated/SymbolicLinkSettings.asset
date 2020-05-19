@@ -14,7 +14,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   symbolicLinks:
   - sourceRelativePath: /XRTK.Ultraleap/Packages/com.xrtk.ultraleap/Profiles~
-    targetRelativePath: /XRTK.Ultraleap/Assets/Ultraleap/Profiles
+    targetRelativePath: /XRTK.Ultraleap/Assets/XRTK.Generated/Ultraleap/Profiles
     isActive: 1
-
-

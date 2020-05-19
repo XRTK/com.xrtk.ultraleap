@@ -64,6 +64,5 @@ artifacts/
 ThirdParty/
 ThirdParty.meta
 --Version/
-XRTK.Ultraleap/Assets/Ultraleap/Profiles
-XRTK.Ultraleap/Assets/Ultraleap/Profiles.meta
-
+XRTK.Ultraleap/Assets/XRTK.Generated/Ultraleap/Profiles
+XRTK.Ultraleap/Assets/XRTK.Generated/Ultraleap/Profiles.meta
