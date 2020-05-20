@@ -14,7 +14,7 @@ namespace XRTK.Ultraleap.Editor
     public static class UltraleapPluginUtility
     {
         private const string GIT_ROOT = "../../../../";
-        private const string NATIVE_ROOT_PATH = "/Submodules/UnityModules/Assets/Plugins/LeapMotion/Core/Plugins";
+        private const string NATIVE_ROOT_PATH = "/Submodules/UnityModules/Assets/Plugins/LeapMotion/Core";
         private static readonly string RootPath = PathFinderUtility.ResolvePath<IPathFinder>(typeof(UltraleapPathFinder));
         private static readonly string PluginPath = Path.GetFullPath($"{RootPath}/Runtime/Plugins");
 
@@ -32,6 +32,8 @@ namespace XRTK.Ultraleap.Editor
                 return path;
             }
         }
+
+        private static string NativePluginPath => Path.GetFullPath($"{NativeRootPath}/Plugins");
 
         static UltraleapPluginUtility()
         {
@@ -62,20 +64,23 @@ namespace XRTK.Ultraleap.Editor
 
                 Directory.CreateDirectory(PluginPath);
 
-                var directories = Directory.GetDirectories(NativeRootPath, "*", SearchOption.AllDirectories);
+                var directories = Directory.GetDirectories(NativePluginPath, "*", SearchOption.AllDirectories);
 
                 foreach (var directory in directories)
                 {
-                    Directory.CreateDirectory(directory.Replace(NativeRootPath.ToForwardSlashes(), PluginPath.ToForwardSlashes()));
+                    Directory.CreateDirectory(directory.Replace(NativePluginPath.ToForwardSlashes(), PluginPath.ToForwardSlashes()));
                 }
 
-                var files = Directory.GetFiles(NativeRootPath, "*.cs", SearchOption.AllDirectories).ToList();
-                files.AddRange(Directory.GetFiles(NativeRootPath, "*.dll", SearchOption.AllDirectories));
+                var files = Directory.GetFiles(NativePluginPath, "*.cs", SearchOption.AllDirectories).ToList();
+                files.AddRange(Directory.GetFiles(NativePluginPath, "*.dll", SearchOption.AllDirectories));
 
                 foreach (var file in files)
                 {
-                    File.Copy(file, file.ToForwardSlashes().Replace(NativeRootPath.ToForwardSlashes(), PluginPath.ToForwardSlashes()));
+                    File.Copy(file, file.ToForwardSlashes().Replace(NativePluginPath.ToForwardSlashes(), PluginPath.ToForwardSlashes()));
                 }
+
+                File.Copy($"{NativeRootPath}/readme.txt", $"{PluginPath}/license.txt");
+                File.Copy($"{NativeRootPath}/Version.txt", $"{PluginPath}/Version.txt");
 
                 EditorApplication.delayCall += () => AssetDatabase.Refresh(ImportAssetOptions.ForceUpdate);
             }
