@@ -88,7 +88,7 @@ namespace XRTK.Ultraleap.Editor
         private static void UpdatePlugins()
         {
             if (EditorUtility.DisplayDialog("Attention!",
-                "In order to reimport the SteamVR plugins, we'll need to restart the editor, is this ok?", "Restart", "Cancel"))
+                "In order to reimport the Ultraleap plugins, we'll need to restart the editor, is this ok?", "Restart", "Cancel"))
             {
                 EditorPreferences.Set($"Reimport_{nameof(UltraleapPluginUtility)}", true);
                 EditorApplication.OpenProject(Directory.GetParent(Application.dataPath).FullName);
