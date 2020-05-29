@@ -81,6 +81,7 @@ namespace XRTK.Ultraleap.Editor
 
                 File.Copy($"{NativeRootPath}/readme.txt", $"{PluginPath}/license.txt");
                 File.Copy($"{NativeRootPath}/Version.txt", $"{PluginPath}/Version.txt");
+                File.Copy($"{NativeRootPath}/LeapCSharp/LeapMotion.LeapCSharp.asmdef", $"{PluginPath}/LeapCSharp/LeapMotion.LeapCSharp.asmdef");
 
                 EditorApplication.delayCall += () => AssetDatabase.Refresh(ImportAssetOptions.ForceUpdate);
             }
