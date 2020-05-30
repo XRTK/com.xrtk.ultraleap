@@ -1,0 +1,3 @@
+[submodule "Submodules/UnityModules"]
+	path = Submodules/UnityModules
+	url = https://github.com/leapmotion/UnityModules.git
