@@ -105,7 +105,7 @@ namespace XRTK.Ultraleap.Editor
                 x86Importer.SetPlatformData(BuildTarget.WSAPlayer, "CPU", "X86");
                 x86Importer.SaveAndReimport();
 
-                var x64Path = $"{rootPluginPath}/x64/{LEAP_API}";
+                var x64Path = $"{rootPluginPath}/x86_64/{LEAP_API}";
                 var x64Importer = AssetImporter.GetAtPath(x64Path) as PluginImporter;
                 Debug.Assert(x64Importer != null, $"Failed to load {x64Path}");
                 x64Importer.ClearSettings();
