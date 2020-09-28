@@ -27,14 +27,18 @@ namespace XRTK.Ultraleap.Providers.Controllers
         {
             OperationMode = profile.OperationMode;
             LeapControllerOffset = profile.LeapControllerOffset;
-            leftHandConverter = new LeapMotionHandDataConverter(Handedness.Left, TrackedPoses);
-            rightHandConverter = new LeapMotionHandDataConverter(Handedness.Right, TrackedPoses);
+            handDataProvider = new LeapMotionHandDataConverter();
+
+            postProcessor = new HandDataPostProcessor(TrackedPoses)
+            {
+                PlatformProvidesPointerPose = true
+            };
         }
 
+        private readonly LeapMotionHandDataConverter handDataProvider;
+        private readonly HandDataPostProcessor postProcessor;
         private readonly Dictionary<Handedness, int> handIdMap = new Dictionary<Handedness, int>();
         private readonly Dictionary<Handedness, MixedRealityHandController> activeControllers = new Dictionary<Handedness, MixedRealityHandController>();
-        private readonly LeapMotionHandDataConverter leftHandConverter;
-        private readonly LeapMotionHandDataConverter rightHandConverter;
         private readonly Leap.Controller leapController = new Leap.Controller();
 
         /// <summary>
@@ -145,28 +149,28 @@ namespace XRTK.Ultraleap.Providers.Controllers
                 {
                     isLeftHandTracked = true;
 
-                    if (TryGetController(Handedness.Left, out MixedRealityHandController leftHandController))
+                    if (TryGetController(Handedness.Left, out MixedRealityHandController leftHandController) &&
+                        handDataProvider.TryGetHandData(hand, RenderingMode == XRTK.Definitions.Controllers.Hands.HandRenderingMode.Mesh, out var leftHandData))
                     {
-                        leftHandController.UpdateController(leftHandConverter.GetHandData(hand));
+                        leftHandController.UpdateController(leftHandData);
                     }
                     else
                     {
-                        leftHandController = CreateController(Handedness.Left, hand.Id);
-                        leftHandController.UpdateController(leftHandConverter.GetHandData(hand));
+                        CreateController(Handedness.Left, hand.Id);
                     }
                 }
                 else if (hand.IsRight && VerifyHandId(Handedness.Right, hand.Id))
                 {
                     isRightHandTracked = true;
 
-                    if (TryGetController(Handedness.Right, out MixedRealityHandController rightHandController))
+                    if (TryGetController(Handedness.Right, out MixedRealityHandController rightHandController) &&
+                        handDataProvider.TryGetHandData(hand, RenderingMode == XRTK.Definitions.Controllers.Hands.HandRenderingMode.Mesh, out var rightHandData))
                     {
-                        rightHandController.UpdateController(rightHandConverter.GetHandData(hand));
+                        rightHandController.UpdateController(rightHandData);
                     }
                     else
                     {
-                        rightHandController = CreateController(Handedness.Right, hand.Id);
-                        rightHandController.UpdateController(rightHandConverter.GetHandData(hand));
+                        CreateController(Handedness.Right, hand.Id);
                     }
                 }
             }

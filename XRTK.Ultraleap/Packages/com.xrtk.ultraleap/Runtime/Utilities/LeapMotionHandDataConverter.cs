@@ -2,11 +2,10 @@
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 
 using System;
-using System.Collections.Generic;
 using UnityEngine;
 using XRTK.Definitions.Controllers.Hands;
+using XRTK.Definitions.Devices;
 using XRTK.Definitions.Utilities;
-using XRTK.Providers.Controllers.Hands;
 using XRTK.Ultraleap.Extensions;
 
 namespace XRTK.Ultraleap.Utilities
@@ -14,16 +13,8 @@ namespace XRTK.Ultraleap.Utilities
     /// <summary>
     /// Converts leap motion hand data to <see cref="HandData"/>.
     /// </summary>
-    public class LeapMotionHandDataConverter : BaseHandDataConverter
+    public sealed class LeapMotionHandDataConverter
     {
-        /// <summary>
-        /// Constructor.
-        /// </summary>
-        /// <param name="handedness">Handedness of the hand this converter is created for.</param>
-        /// <param name="trackedPoses">The tracked poses collection to use for pose recognition.</param>
-        public LeapMotionHandDataConverter(Handedness handedness, IReadOnlyList<HandControllerPoseDefinition> trackedPoses) : base(handedness, trackedPoses)
-        { }
-
         private const int THUMB_INDEX = 0;
         private const int INDEX_FINGER_INDEX = 1;
         private const int MIDDLE_FINGER_INDEX = 2;
@@ -33,40 +24,33 @@ namespace XRTK.Ultraleap.Utilities
         private Leap.Hand currentHand = null;
 
         /// <summary>
-        /// Gets or sets whether hand mesh data should be read and converted.
+        /// Reads hand APIs for the current frame and converts it to agnostic <see cref="HandData"/>.
         /// </summary>
-        public static bool HandMeshingEnabled { get; set; }
-
-        /// <summary>
-        /// Reads hand data for the current frame and converts it to agnostic hand data.
-        /// </summary>
-        /// <returns>Updated hand data.</returns>
-        public HandData GetHandData(Leap.Hand hand)
+        /// <param name="handedness">The handedness of the hand to get <see cref="HandData"/> for.</param>
+        /// <param name="includeMeshData">If set, hand mesh information will be included in <see cref="HandData.Mesh"/>.</param>
+        /// <param name="handData">The output <see cref="HandData"/>.</param>
+        /// <returns>True, if data conversion was a success.</returns>
+        public bool TryGetHandData(Leap.Hand hand, bool includeMeshData, out HandData handData)
         {
             currentHand = hand;
 
-            HandData updatedHandData = new HandData
-            {
-                IsTracked = true,
-                TimeStamp = DateTimeOffset.UtcNow.Ticks
-            };
+            handData = new HandData();
 
-            if (updatedHandData.IsTracked)
+            if (handData.TrackingState == TrackingState.Tracked)
             {
-                UpdateHandJoints(updatedHandData.Joints);
+                UpdateHandJoints(handData.Joints);
 
-                if (HandMeshingEnabled && TryGetUpdatedHandMeshData(out HandMeshData data))
+                if (includeMeshData && TryGetUpdatedHandMeshData(out HandMeshData data))
                 {
-                    updatedHandData.Mesh = data;
+                    handData.Mesh = data;
                 }
                 else
                 {
-                    updatedHandData.Mesh = new HandMeshData();
+                    handData.Mesh = new HandMeshData();
                 }
             }
 
-            PostProcess(updatedHandData);
-            return updatedHandData;
+            return true;
         }
 
         private void UpdateHandJoints(MixedRealityPose[] jointPoses)
@@ -84,13 +68,13 @@ namespace XRTK.Ultraleap.Utilities
                         jointPoses[i] = ComputePalmPose(currentHand.PalmPosition, currentHand.PalmNormal);
                         break;
                     // Finger: Thumb
-                    case TrackedHandJoint.ThumbMetacarpalJoint:
+                    case TrackedHandJoint.ThumbMetacarpal:
                         jointPoses[i] = ComputeJointPose(currentHand.Fingers[THUMB_INDEX].Bone(Leap.Bone.BoneType.TYPE_METACARPAL));
                         break;
-                    case TrackedHandJoint.ThumbProximalJoint:
+                    case TrackedHandJoint.ThumbProximal:
                         jointPoses[i] = ComputeJointPose(currentHand.Fingers[THUMB_INDEX].Bone(Leap.Bone.BoneType.TYPE_PROXIMAL));
                         break;
-                    case TrackedHandJoint.ThumbDistalJoint:
+                    case TrackedHandJoint.ThumbDistal:
                         jointPoses[i] = ComputeJointPose(currentHand.Fingers[THUMB_INDEX].Bone(Leap.Bone.BoneType.TYPE_DISTAL));
                         break;
                     case TrackedHandJoint.ThumbTip:
@@ -100,13 +84,13 @@ namespace XRTK.Ultraleap.Utilities
                     case TrackedHandJoint.IndexMetacarpal:
                         jointPoses[i] = ComputeJointPose(currentHand.Fingers[INDEX_FINGER_INDEX].Bone(Leap.Bone.BoneType.TYPE_METACARPAL));
                         break;
-                    case TrackedHandJoint.IndexKnuckle:
+                    case TrackedHandJoint.IndexProximal:
                         jointPoses[i] = ComputeKnucklePose(currentHand.Fingers[INDEX_FINGER_INDEX].Bone(Leap.Bone.BoneType.TYPE_METACARPAL));
                         break;
-                    case TrackedHandJoint.IndexMiddleJoint:
+                    case TrackedHandJoint.IndexIntermediate:
                         jointPoses[i] = ComputeJointPose(currentHand.Fingers[INDEX_FINGER_INDEX].Bone(Leap.Bone.BoneType.TYPE_INTERMEDIATE));
                         break;
-                    case TrackedHandJoint.IndexDistalJoint:
+                    case TrackedHandJoint.IndexDistal:
                         jointPoses[i] = ComputeJointPose(currentHand.Fingers[INDEX_FINGER_INDEX].Bone(Leap.Bone.BoneType.TYPE_DISTAL));
                         break;
                     case TrackedHandJoint.IndexTip:
@@ -116,13 +100,13 @@ namespace XRTK.Ultraleap.Utilities
                     case TrackedHandJoint.MiddleMetacarpal:
                         jointPoses[i] = ComputeJointPose(currentHand.Fingers[MIDDLE_FINGER_INDEX].Bone(Leap.Bone.BoneType.TYPE_METACARPAL));
                         break;
-                    case TrackedHandJoint.MiddleKnuckle:
+                    case TrackedHandJoint.MiddleProximal:
                         jointPoses[i] = ComputeKnucklePose(currentHand.Fingers[MIDDLE_FINGER_INDEX].Bone(Leap.Bone.BoneType.TYPE_METACARPAL));
                         break;
-                    case TrackedHandJoint.MiddleMiddleJoint:
+                    case TrackedHandJoint.MiddleIntermediate:
                         jointPoses[i] = ComputeJointPose(currentHand.Fingers[MIDDLE_FINGER_INDEX].Bone(Leap.Bone.BoneType.TYPE_INTERMEDIATE));
                         break;
-                    case TrackedHandJoint.MiddleDistalJoint:
+                    case TrackedHandJoint.MiddleDistal:
                         jointPoses[i] = ComputeJointPose(currentHand.Fingers[MIDDLE_FINGER_INDEX].Bone(Leap.Bone.BoneType.TYPE_DISTAL));
                         break;
                     case TrackedHandJoint.MiddleTip:
@@ -132,32 +116,32 @@ namespace XRTK.Ultraleap.Utilities
                     case TrackedHandJoint.RingMetacarpal:
                         jointPoses[i] = ComputeJointPose(currentHand.Fingers[RING_FINGER_INDEX].Bone(Leap.Bone.BoneType.TYPE_METACARPAL));
                         break;
-                    case TrackedHandJoint.RingKnuckle:
+                    case TrackedHandJoint.RingProximal:
                         jointPoses[i] = ComputeKnucklePose(currentHand.Fingers[RING_FINGER_INDEX].Bone(Leap.Bone.BoneType.TYPE_METACARPAL));
                         break;
-                    case TrackedHandJoint.RingMiddleJoint:
+                    case TrackedHandJoint.RingIntermediate:
                         jointPoses[i] = ComputeJointPose(currentHand.Fingers[RING_FINGER_INDEX].Bone(Leap.Bone.BoneType.TYPE_INTERMEDIATE));
                         break;
-                    case TrackedHandJoint.RingDistalJoint:
+                    case TrackedHandJoint.RingDistal:
                         jointPoses[i] = ComputeJointPose(currentHand.Fingers[RING_FINGER_INDEX].Bone(Leap.Bone.BoneType.TYPE_DISTAL));
                         break;
                     case TrackedHandJoint.RingTip:
                         jointPoses[i] = ComputeTipPose(currentHand.Fingers[RING_FINGER_INDEX].Bone(Leap.Bone.BoneType.TYPE_DISTAL));
                         break;
                     // Finger: Pinky
-                    case TrackedHandJoint.PinkyMetacarpal:
+                    case TrackedHandJoint.LittleMetacarpal:
                         jointPoses[i] = ComputeJointPose(currentHand.Fingers[PINKY_FINGER_INDEX].Bone(Leap.Bone.BoneType.TYPE_METACARPAL));
                         break;
-                    case TrackedHandJoint.PinkyKnuckle:
+                    case TrackedHandJoint.LittleProximal:
                         jointPoses[i] = ComputeKnucklePose(currentHand.Fingers[PINKY_FINGER_INDEX].Bone(Leap.Bone.BoneType.TYPE_METACARPAL));
                         break;
-                    case TrackedHandJoint.PinkyMiddleJoint:
+                    case TrackedHandJoint.LittleIntermediate:
                         jointPoses[i] = ComputeJointPose(currentHand.Fingers[PINKY_FINGER_INDEX].Bone(Leap.Bone.BoneType.TYPE_INTERMEDIATE));
                         break;
-                    case TrackedHandJoint.PinkyDistalJoint:
+                    case TrackedHandJoint.LittleDistal:
                         jointPoses[i] = ComputeJointPose(currentHand.Fingers[PINKY_FINGER_INDEX].Bone(Leap.Bone.BoneType.TYPE_DISTAL));
                         break;
-                    case TrackedHandJoint.PinkyTip:
+                    case TrackedHandJoint.LittleTip:
                         jointPoses[i] = ComputeTipPose(currentHand.Fingers[PINKY_FINGER_INDEX].Bone(Leap.Bone.BoneType.TYPE_DISTAL));
                         break;
                 }
