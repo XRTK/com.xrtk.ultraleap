@@ -96,7 +96,7 @@ namespace XRTK.Ultraleap.Providers.Controllers
                 var hand = frame.Hands[i];
 
                 if (hand.IsLeft && VerifyHandId(Handedness.Left, hand.Id) &&
-                    handDataProvider.TryGetHandData(hand, RenderingMode == XRTK.Definitions.Controllers.Hands.HandRenderingMode.Mesh, out var leftHandData))
+                    handDataProvider.TryGetHandData(hand, out var leftHandData))
                 {
                     isLeftHandTracked = true;
 
@@ -106,7 +106,7 @@ namespace XRTK.Ultraleap.Providers.Controllers
                     controller?.UpdateController(leftHandData);
                 }
                 else if (hand.IsRight && VerifyHandId(Handedness.Right, hand.Id) &&
-                    handDataProvider.TryGetHandData(hand, RenderingMode == XRTK.Definitions.Controllers.Hands.HandRenderingMode.Mesh, out var rightHandData))
+                    handDataProvider.TryGetHandData(hand, out var rightHandData))
                 {
                     isRightHandTracked = true;
                     var controller = GetOrAddController(Handedness.Right, hand.Id);

@@ -27,34 +27,38 @@ namespace XRTK.Ultraleap.Utilities
         /// Reads hand APIs for the current frame and converts it to agnostic <see cref="HandData"/>.
         /// </summary>
         /// <param name="handedness">The handedness of the hand to get <see cref="HandData"/> for.</param>
-        /// <param name="includeMeshData">If set, hand mesh information will be included in <see cref="HandData.Mesh"/>.</param>
         /// <param name="handData">The output <see cref="HandData"/>.</param>
         /// <returns>True, if data conversion was a success.</returns>
-        public bool TryGetHandData(Leap.Hand hand, bool includeMeshData, out HandData handData)
+        public bool TryGetHandData(Leap.Hand hand, out HandData handData)
         {
-            currentHand = hand;
+            if (hand == null)
+            {
+                handData = default;
+                return false;
+            }
 
-            handData = new HandData();
+            currentHand = hand;
+            handData = new HandData
+            {
+                TrackingState = TrackingState.Tracked,
+                UpdatedAt = DateTimeOffset.UtcNow.Ticks
+            };
 
             if (handData.TrackingState == TrackingState.Tracked)
             {
-                UpdateHandJoints(handData.Joints);
-
-                if (includeMeshData && TryGetUpdatedHandMeshData(out HandMeshData data))
-                {
-                    handData.Mesh = data;
-                }
-                else
-                {
-                    handData.Mesh = new HandMeshData();
-                }
+                handData.RootPose = GetHandRootPose();
+                handData.Joints = GetJointPoses();
+                //handData.PointerPose = GetPointerPose();
+                handData.Mesh = new HandMeshData();
             }
 
             return true;
         }
 
-        private void UpdateHandJoints(MixedRealityPose[] jointPoses)
+        private MixedRealityPose[] GetJointPoses()
         {
+            var jointPoses = new MixedRealityPose[HandData.JointCount];
+
             for (int i = 0; i < jointPoses.Length; i++)
             {
                 TrackedHandJoint trackedHandJoint = (TrackedHandJoint)i;
@@ -146,6 +150,8 @@ namespace XRTK.Ultraleap.Utilities
                         break;
                 }
             }
+
+            return jointPoses;
         }
 
         private MixedRealityPose ComputeWristPose(Leap.Vector wristPosition)
@@ -185,10 +191,13 @@ namespace XRTK.Ultraleap.Utilities
             return new MixedRealityPose(position, rotation);
         }
 
-        private bool TryGetUpdatedHandMeshData(out HandMeshData data)
+        /// <summary>
+        /// Gets the hand's root <see cref="MixedRealityPose"/>.
+        /// </summary>
+        /// <returns>The hands <see cref="HandData.RootPose"/> value.</returns>
+        private MixedRealityPose GetHandRootPose()
         {
-            // TODO: Check if Leap motion actually supports hand meshing.
-            throw new NotImplementedException();
+            return MixedRealityPose.ZeroIdentity;
         }
     }
 }
