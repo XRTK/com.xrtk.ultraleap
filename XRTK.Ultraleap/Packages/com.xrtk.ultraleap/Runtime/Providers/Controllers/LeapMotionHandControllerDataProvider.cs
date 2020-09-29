@@ -61,11 +61,6 @@ namespace XRTK.Ultraleap.Providers.Controllers
                 leapController.StartConnection();
             }
 
-            leapController.Connect += LeapController_Connect;
-            leapController.Disconnect += LeapController_Disconnect;
-            leapController.Device += LeapController_Device;
-            leapController.DeviceLost += LeapController_DeviceLost;
-            leapController.DeviceFailure += LeapController_DeviceFailure;
             leapController.FrameReady += LeapController_FrameReady;
         }
 
@@ -77,11 +72,6 @@ namespace XRTK.Ultraleap.Providers.Controllers
                 leapController.StopConnection();
             }
 
-            leapController.Connect -= LeapController_Connect;
-            leapController.Disconnect -= LeapController_Disconnect;
-            leapController.Device -= LeapController_Device;
-            leapController.DeviceLost -= LeapController_DeviceLost;
-            leapController.DeviceFailure -= LeapController_DeviceFailure;
             leapController.FrameReady -= LeapController_FrameReady;
 
             foreach (var activeController in activeControllers)
@@ -95,46 +85,6 @@ namespace XRTK.Ultraleap.Providers.Controllers
 
         #region Leap Controller Event Handlers
 
-        private void LeapController_Device(object sender, Leap.DeviceEventArgs e)
-        {
-            if (Debug.isDebugBuild)
-            {
-                Debug.Log($"{typeof(Leap.Controller)} | Device connected | {e.Device.SerialNumber}");
-            }
-        }
-
-        private void LeapController_DeviceFailure(object sender, Leap.DeviceFailureEventArgs e)
-        {
-            if (Debug.isDebugBuild)
-            {
-                Debug.Log($"{typeof(Leap.Controller)} | Device failure | {e.DeviceSerialNumber} | {e.ErrorMessage}");
-            }
-        }
-
-        private void LeapController_DeviceLost(object sender, Leap.DeviceEventArgs e)
-        {
-            if (Debug.isDebugBuild)
-            {
-                Debug.Log($"{typeof(Leap.Controller)} | Device lost | {e.Device.SerialNumber}");
-            }
-        }
-
-        private void LeapController_Connect(object sender, Leap.ConnectionEventArgs e)
-        {
-            if (Debug.isDebugBuild)
-            {
-                Debug.Log($"{typeof(Leap.Controller)} | Service connected");
-            }
-        }
-
-        private void LeapController_Disconnect(object sender, Leap.ConnectionLostEventArgs e)
-        {
-            if (Debug.isDebugBuild)
-            {
-                Debug.Log($"{typeof(Leap.Controller)} | Service disconnected");
-            }
-        }
-
         private void LeapController_FrameReady(object sender, Leap.FrameEventArgs e)
         {
             bool isLeftHandTracked = false;
@@ -145,33 +95,23 @@ namespace XRTK.Ultraleap.Providers.Controllers
             {
                 var hand = frame.Hands[i];
 
-                if (hand.IsLeft && VerifyHandId(Handedness.Left, hand.Id))
+                if (hand.IsLeft && VerifyHandId(Handedness.Left, hand.Id) &&
+                    handDataProvider.TryGetHandData(hand, RenderingMode == XRTK.Definitions.Controllers.Hands.HandRenderingMode.Mesh, out var leftHandData))
                 {
                     isLeftHandTracked = true;
 
-                    if (TryGetController(Handedness.Left, out MixedRealityHandController leftHandController) &&
-                        handDataProvider.TryGetHandData(hand, RenderingMode == XRTK.Definitions.Controllers.Hands.HandRenderingMode.Mesh, out var leftHandData))
-                    {
-                        leftHandController.UpdateController(leftHandData);
-                    }
-                    else
-                    {
-                        CreateController(Handedness.Left, hand.Id);
-                    }
+
+                    var controller = GetOrAddController(Handedness.Left, hand.Id);
+                    leftHandData = postProcessor.PostProcess(Handedness.Left, leftHandData);
+                    controller?.UpdateController(leftHandData);
                 }
-                else if (hand.IsRight && VerifyHandId(Handedness.Right, hand.Id))
+                else if (hand.IsRight && VerifyHandId(Handedness.Right, hand.Id) &&
+                    handDataProvider.TryGetHandData(hand, RenderingMode == XRTK.Definitions.Controllers.Hands.HandRenderingMode.Mesh, out var rightHandData))
                 {
                     isRightHandTracked = true;
-
-                    if (TryGetController(Handedness.Right, out MixedRealityHandController rightHandController) &&
-                        handDataProvider.TryGetHandData(hand, RenderingMode == XRTK.Definitions.Controllers.Hands.HandRenderingMode.Mesh, out var rightHandData))
-                    {
-                        rightHandController.UpdateController(rightHandData);
-                    }
-                    else
-                    {
-                        CreateController(Handedness.Right, hand.Id);
-                    }
+                    var controller = GetOrAddController(Handedness.Right, hand.Id);
+                    rightHandData = postProcessor.PostProcess(Handedness.Right, rightHandData);
+                    controller?.UpdateController(rightHandData);
                 }
             }
 
@@ -188,8 +128,28 @@ namespace XRTK.Ultraleap.Providers.Controllers
 
         #endregion Leap Controller Event Handlers
 
-        private MixedRealityHandController CreateController(Handedness handedness, int handId)
+        private bool TryGetController(Handedness handedness, out MixedRealityHandController controller)
         {
+            if (activeControllers.ContainsKey(handedness))
+            {
+                var existingController = activeControllers[handedness];
+                Debug.Assert(existingController != null, $"Hand Controller {handedness} has been destroyed but remains in the active controller registry.");
+                controller = existingController;
+                return true;
+            }
+
+            controller = null;
+            return false;
+        }
+
+        private MixedRealityHandController GetOrAddController(Handedness handedness, int handId)
+        {
+            // If a device is already registered with the handedness, just return it.
+            if (TryGetController(handedness, out var existingController))
+            {
+                return existingController;
+            }
+
             MixedRealityHandController detectedController;
             try
             {
@@ -208,20 +168,6 @@ namespace XRTK.Ultraleap.Providers.Controllers
             MixedRealityToolkit.InputSystem?.RaiseSourceDetected(detectedController.InputSource, detectedController);
 
             return detectedController;
-        }
-
-        private bool TryGetController(Handedness handedness, out MixedRealityHandController controller)
-        {
-            if (activeControllers.ContainsKey(handedness))
-            {
-                var existingController = activeControllers[handedness];
-                Debug.Assert(existingController != null, $"Hand Controller {handedness} has been destroyed but remains in the active controller registry.");
-                controller = existingController;
-                return true;
-            }
-
-            controller = null;
-            return false;
         }
 
         private void RemoveController(Handedness handedness, bool removeFromRegistry = true)
@@ -243,9 +189,15 @@ namespace XRTK.Ultraleap.Providers.Controllers
         {
             if (handIdMap.ContainsKey(handedness))
             {
+                // A hand ID for the provided ID is already
+                // registered. We can only update the controller
+                // for the handedness if the IDs match.
                 return handIdMap[handedness] == handId;
             }
 
+            // A hand ID for the provided handedness is currently
+            // not registered at all. That means it's safe to create
+            // a new controller for the provided ID.
             return true;
         }
     }

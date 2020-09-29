@@ -3,6 +3,9 @@
 
 namespace XRTK.Ultraleap.Definitions
 {
+    /// <summary>
+    /// Supported operation modes for the leap motion hand controller.
+    /// </summary>
     public enum LeapMotionOperationMode
     {
         /// <summary>
