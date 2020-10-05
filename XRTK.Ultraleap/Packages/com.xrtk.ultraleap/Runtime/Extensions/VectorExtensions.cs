@@ -14,7 +14,7 @@ namespace XRTK.Ultraleap.Extensions
         /// <returns>A <see cref="Vector3"/>.</returns>
         public static Vector3 ToVector3(this Leap.Vector v)
         {
-            return new Vector3(v.x, v.y, v.z);
+            return new Vector3(v.x, v.y, -v.z);
         }
     }
 }
