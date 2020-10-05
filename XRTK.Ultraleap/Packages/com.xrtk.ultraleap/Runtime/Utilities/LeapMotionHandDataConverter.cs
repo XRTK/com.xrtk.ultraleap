@@ -142,7 +142,7 @@ namespace XRTK.Ultraleap.Utilities
                 else if (trackedHandJoint == TrackedHandJoint.Palm)
                 {
                     jointPosition = hand.PalmPosition.ToVector3() / millimeterToMeterDivider;
-                    jointRotation = Quaternion.LookRotation(handRootPose.Forward, hand.PalmNormal.ToVector3());
+                    jointRotation = Quaternion.LookRotation(handRootPose.Forward, -1 * hand.PalmNormal.ToVector3());
                 }
                 else
                 {
