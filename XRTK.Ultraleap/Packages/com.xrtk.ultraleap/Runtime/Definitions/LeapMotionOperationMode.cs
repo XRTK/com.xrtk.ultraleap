@@ -4,17 +4,17 @@
 namespace XRTK.Ultraleap.Definitions
 {
     /// <summary>
-    /// Supported operation modes for the leap motion hand controller.
+    /// Supported operation modes for the leap motion device.
     /// </summary>
     public enum LeapMotionOperationMode
     {
         /// <summary>
-        /// The leap motion controller is lying flat on a desk and pointing
+        /// The leap motion device is lying flat on a desk and pointing
         /// upwards.
         /// </summary>
-        Desk = 0,
+        Desktop = 0,
         /// <summary>
-        /// The leap motion controller is mounted to a headset and
+        /// The leap motion device is mounted to a headset and
         /// pointing in forward direction.
         /// </summary>
         HeadsetMounted

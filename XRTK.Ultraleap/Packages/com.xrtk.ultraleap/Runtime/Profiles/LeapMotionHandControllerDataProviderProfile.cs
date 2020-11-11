@@ -8,15 +8,19 @@ using XRTK.Ultraleap.Definitions;
 
 namespace XRTK.Ultraleap.Profiles
 {
+    /// <summary>
+    /// Configuration profile for the <see cref="Providers.Controllers.LeapMotionHandControllerDataProvider"/> powering
+    /// the <see cref="XRTK.Providers.Controllers.Hands.MixedRealityHandController"/>.
+    /// </summary>
     [CreateAssetMenu(menuName = "Mixed Reality Toolkit/Input System/Controller Data Providers/Leap Motion Hand", fileName = "LeapMotionHandControllerDataProviderProfile", order = (int)CreateProfileMenuItemIndices.Input)]
     public class LeapMotionHandControllerDataProviderProfile : BaseHandControllerDataProviderProfile
     {
         [SerializeField]
-        [Tooltip("Specifies how the leap motion controller is operated.")]
-        private LeapMotionOperationMode operationMode = LeapMotionOperationMode.Desk;
+        [Tooltip("Specifies how the leap motion device is operated.")]
+        private LeapMotionOperationMode operationMode = LeapMotionOperationMode.Desktop;
 
         /// <summary>
-        /// Specifies how the leap motion controller is operated.
+        /// Specifies how the leap motion device is operated.
         /// </summary>
         public LeapMotionOperationMode OperationMode => operationMode;
 

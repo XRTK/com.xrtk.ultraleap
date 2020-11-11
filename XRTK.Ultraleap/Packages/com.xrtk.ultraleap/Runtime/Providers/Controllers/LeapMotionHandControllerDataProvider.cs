@@ -47,7 +47,7 @@ namespace XRTK.Ultraleap.Providers.Controllers
         private LeapMotionOperationMode OperationMode { get; }
 
         /// <summary>
-        /// Offset applied to the rendered hands when in <see cref="LeapMotionOperationMode.Desk"/> mode.
+        /// Offset applied to the rendered hands when in <see cref="LeapMotionOperationMode.Desktop"/> mode.
         /// </summary>
         private Vector3 LeapControllerOffset { get; }
 

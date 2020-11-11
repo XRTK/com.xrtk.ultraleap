@@ -10,6 +10,9 @@ using XRTK.Ultraleap.Profiles;
 
 namespace XRTK.Ultraleap.Editor.Inspectors
 {
+    /// <summary>
+    /// Default inspector for the <see cref="LeapMotionHandControllerDataProviderProfile"/> asset.
+    /// </summary>
     [CustomEditor(typeof(LeapMotionHandControllerDataProviderProfile))]
     public class LeapMotionHandControllerDataProviderProfileInspector : BaseMixedRealityHandControllerDataProviderProfileInspector
     {
@@ -39,7 +42,7 @@ namespace XRTK.Ultraleap.Editor.Inspectors
 
                 EditorGUILayout.PropertyField(operationMode);
 
-                bool deskModeDisabled = (LeapMotionOperationMode)operationMode.intValue != LeapMotionOperationMode.Desk;
+                bool deskModeDisabled = (LeapMotionOperationMode)operationMode.intValue != LeapMotionOperationMode.Desktop;
                 using (new EditorGUI.DisabledScope(deskModeDisabled))
                 {
                     EditorGUILayout.PropertyField(leapControllerOffset);
