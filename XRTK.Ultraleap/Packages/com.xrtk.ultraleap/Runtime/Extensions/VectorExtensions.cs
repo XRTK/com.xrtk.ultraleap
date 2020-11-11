@@ -5,6 +5,9 @@ using UnityEngine;
 
 namespace XRTK.Ultraleap.Extensions
 {
+    /// <summary>
+    /// Ultraleap platform specific <see cref="Vector3"/> extensions.
+    /// </summary>
     public static class VectorExtensions
     {
         /// <summary>
@@ -12,9 +15,6 @@ namespace XRTK.Ultraleap.Extensions
         /// </summary>
         /// <param name="v">The <see cref="Leap.Vector"/> to convert.</param>
         /// <returns>A <see cref="Vector3"/>.</returns>
-        public static Vector3 ToVector3(this Leap.Vector v)
-        {
-            return new Vector3(v.x, v.y, -v.z);
-        }
+        public static Vector3 ToVector3(this Leap.Vector v) => new Vector3(v.x, v.y, -v.z);
     }
 }

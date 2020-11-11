@@ -5,6 +5,9 @@ using UnityEngine;
 
 namespace XRTK.Ultraleap.Extensions
 {
+    /// <summary>
+    /// Ultraleap platform specific <see cref="Quaternion"/> extensions.
+    /// </summary>
     public static class QuaternionExtensions
     {
         /// <summary>
@@ -12,9 +15,6 @@ namespace XRTK.Ultraleap.Extensions
         /// </summary>
         /// <param name="vector">The <see cref="Leap.LeapQuaternion"/> to convert.</param>
         /// <returns>A <see cref="Quaternion"/>.</returns>
-        public static Quaternion ToQuaternion(this Leap.LeapQuaternion q)
-        {
-            return new Quaternion(q.x, q.y, q.z, q.w);
-        }
+        public static Quaternion ToQuaternion(this Leap.LeapQuaternion q) => new Quaternion(q.x, q.y, q.z, q.w);
     }
 }
