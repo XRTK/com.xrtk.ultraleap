@@ -9,20 +9,20 @@ using XRTK.Ultraleap.Definitions;
 namespace XRTK.Ultraleap.Profiles
 {
     /// <summary>
-    /// Configuration profile for the <see cref="Providers.Controllers.LeapMotionHandControllerDataProvider"/> powering
+    /// Configuration profile for the <see cref="Providers.Controllers.UltraleapHandControllerDataProvider"/> powering
     /// the <see cref="XRTK.Providers.Controllers.Hands.MixedRealityHandController"/>.
     /// </summary>
-    [CreateAssetMenu(menuName = "Mixed Reality Toolkit/Input System/Controller Data Providers/Leap Motion Hand", fileName = "LeapMotionHandControllerDataProviderProfile", order = (int)CreateProfileMenuItemIndices.Input)]
-    public class LeapMotionHandControllerDataProviderProfile : BaseHandControllerDataProviderProfile
+    [CreateAssetMenu(menuName = "Mixed Reality Toolkit/Input System/Controller Data Providers/Ultraleap Hand", fileName = "UltraleapHandControllerDataProviderProfile", order = (int)CreateProfileMenuItemIndices.Input)]
+    public class UltraleapHandControllerDataProviderProfile : BaseHandControllerDataProviderProfile
     {
         [SerializeField]
-        [Tooltip("Specifies how the leap motion device is operated.")]
-        private LeapMotionOperationMode operationMode = LeapMotionOperationMode.Desktop;
+        [Tooltip("Specifies how the Ultraleap device is operated.")]
+        private UltraleapOperationMode operationMode = UltraleapOperationMode.Desktop;
 
         /// <summary>
-        /// Specifies how the leap motion device is operated.
+        /// Specifies how the Ultraleap device is operated.
         /// </summary>
-        public LeapMotionOperationMode OperationMode => operationMode;
+        public UltraleapOperationMode OperationMode => operationMode;
 
         [SerializeField]
         [Tooltip("Adds an offset to the game object with LeapServiceProvider attached.  This offset is only applied if the leapControllerOrientation" +

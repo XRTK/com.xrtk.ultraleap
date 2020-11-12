@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 451d8dc44d554ee4f87a12a362c3c649, type: 3}
-  m_Name: DefaultLeapMotionHandControllerDataProviderProfile
+  m_Name: DefaultUltraleapHandControllerDataProviderProfile
   m_EditorClassIdentifier: 
   hasSetupDefaults: 1
   controllerMappingProfiles:
@@ -22,4 +22,4 @@ MonoBehaviour:
   boundsMode: 0
   trackedPoses: []
   operationMode: 0
-  leapControllerOffset: {x: 0, y: -0.2, z: 0.2}
+  leapControllerOffset: {x: 0, y: -0.2, z: 0.5}

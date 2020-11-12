@@ -11,16 +11,16 @@ using XRTK.Ultraleap.Profiles;
 namespace XRTK.Ultraleap.Editor.Inspectors
 {
     /// <summary>
-    /// Default inspector for the <see cref="LeapMotionHandControllerDataProviderProfile"/> asset.
+    /// Default inspector for the <see cref="UltraleapHandControllerDataProviderProfile"/> asset.
     /// </summary>
-    [CustomEditor(typeof(LeapMotionHandControllerDataProviderProfile))]
-    public class LeapMotionHandControllerDataProviderProfileInspector : BaseMixedRealityHandControllerDataProviderProfileInspector
+    [CustomEditor(typeof(UltraleapHandControllerDataProviderProfile))]
+    public class UltraleapHandControllerDataProviderProfileInspector : BaseMixedRealityHandControllerDataProviderProfileInspector
     {
         private SerializedProperty operationMode;
         private SerializedProperty leapControllerOffset;
 
-        private bool showLeapMotionHandTrackingSettings = true;
-        private static readonly GUIContent leapMotionSettingsFoldoutHeader = new GUIContent("Leap Motion Hand Tracking Settings");
+        private bool showUltraleapHandTrackingSettings = true;
+        private static readonly GUIContent ultraleapSettingsFoldoutHeader = new GUIContent("Ultraleap Hand Tracking Settings");
 
         protected override void OnEnable()
         {
@@ -35,14 +35,14 @@ namespace XRTK.Ultraleap.Editor.Inspectors
 
             serializedObject.Update();
 
-            showLeapMotionHandTrackingSettings = EditorGUILayoutExtensions.FoldoutWithBoldLabel(showLeapMotionHandTrackingSettings, leapMotionSettingsFoldoutHeader, true);
-            if (showLeapMotionHandTrackingSettings)
+            showUltraleapHandTrackingSettings = EditorGUILayoutExtensions.FoldoutWithBoldLabel(showUltraleapHandTrackingSettings, ultraleapSettingsFoldoutHeader, true);
+            if (showUltraleapHandTrackingSettings)
             {
                 EditorGUI.indentLevel++;
 
                 EditorGUILayout.PropertyField(operationMode);
 
-                bool deskModeDisabled = (LeapMotionOperationMode)operationMode.intValue != LeapMotionOperationMode.Desktop;
+                bool deskModeDisabled = (UltraleapOperationMode)operationMode.intValue != UltraleapOperationMode.Desktop;
                 using (new EditorGUI.DisabledScope(deskModeDisabled))
                 {
                     EditorGUILayout.PropertyField(leapControllerOffset);

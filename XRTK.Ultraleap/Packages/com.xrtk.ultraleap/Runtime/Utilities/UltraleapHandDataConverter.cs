@@ -2,6 +2,7 @@
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 using Leap;
 using XRTK.Definitions.Controllers.Hands;
@@ -10,19 +11,28 @@ using XRTK.Definitions.Utilities;
 using XRTK.Ultraleap.Extensions;
 using XRTK.Services;
 using XRTK.Extensions;
-using System.Collections.Generic;
+using XRTK.Ultraleap.Providers.Controllers;
 
 namespace XRTK.Ultraleap.Utilities
 {
     /// <summary>
-    /// Converts leap motion hand data to <see cref="HandData"/>.
+    /// Converts Ultraleap hand data to <see cref="HandData"/>.
     /// </summary>
-    public sealed class LeapMotionHandDataConverter
+    public sealed class UltraleapHandDataConverter
     {
+        /// <summary>
+        /// Constructor.
+        /// </summary>
+        /// <param name="dataProvider">The <see cref="UltraleapHandControllerDataProvider"/> using this converter.</param>
+        public UltraleapHandDataConverter(UltraleapHandControllerDataProvider dataProvider)
+        {
+            this.dataProvider = dataProvider;
+        }
+
         /// <summary>
         /// Destructor.
         /// </summary>
-        ~LeapMotionHandDataConverter()
+        ~UltraleapHandDataConverter()
         {
             if (!conversionProxyRootTransform.IsNull())
             {
@@ -31,6 +41,7 @@ namespace XRTK.Ultraleap.Utilities
             }
         }
 
+        private readonly UltraleapHandControllerDataProvider dataProvider;
         private Transform conversionProxyRootTransform;
         private readonly Dictionary<TrackedHandJoint, Transform> conversionProxyTransforms = new Dictionary<TrackedHandJoint, Transform>();
         private const float millimeterToMeterDivider = 1000f;
@@ -156,7 +167,7 @@ namespace XRTK.Ultraleap.Utilities
             }
 
             return new MixedRealityPose(
-                conversionProxyRootTransform.InverseTransformPoint(jointTransform.position),
+                conversionProxyRootTransform.TransformPoint(jointTransform.position),
                 Quaternion.Inverse(conversionProxyRootTransform.rotation) * jointTransform.rotation);
         }
 
@@ -181,6 +192,13 @@ namespace XRTK.Ultraleap.Utilities
                 conversionProxyRootTransform = new GameObject("Ultraleap Hand Conversion Proxy").transform;
                 conversionProxyRootTransform.transform.SetParent(MixedRealityToolkit.CameraSystem.MainCameraRig.PlayspaceTransform, false);
                 conversionProxyRootTransform.gameObject.SetActive(false);
+            }
+
+            if (dataProvider.OperationMode == Definitions.UltraleapOperationMode.Desktop)
+            {
+                conversionProxyRootTransform.position =
+                    MixedRealityToolkit.CameraSystem.MainCameraRig.PlayerCamera.transform.position +
+                    dataProvider.LeapControllerOffset;
             }
 
             if (handJointKind == TrackedHandJoint.Wrist)

@@ -19,15 +19,15 @@ namespace XRTK.Ultraleap.Providers.Controllers
 {
     [RuntimePlatform(typeof(UltraleapPlatform))]
     [System.Runtime.InteropServices.Guid("61cec407-ffa4-4a5c-b96a-5229348f85c2")]
-    public class LeapMotionHandControllerDataProvider : BaseHandControllerDataProvider
+    public class UltraleapHandControllerDataProvider : BaseHandControllerDataProvider
     {
         /// <inheritdoc />
-        public LeapMotionHandControllerDataProvider(string name, uint priority, LeapMotionHandControllerDataProviderProfile profile, IMixedRealityInputSystem parentService)
+        public UltraleapHandControllerDataProvider(string name, uint priority, UltraleapHandControllerDataProviderProfile profile, IMixedRealityInputSystem parentService)
             : base(name, priority, profile, parentService)
         {
             OperationMode = profile.OperationMode;
             LeapControllerOffset = profile.LeapControllerOffset;
-            handDataProvider = new LeapMotionHandDataConverter();
+            handDataProvider = new UltraleapHandDataConverter(this);
 
             postProcessor = new HandDataPostProcessor(TrackedPoses)
             {
@@ -35,21 +35,21 @@ namespace XRTK.Ultraleap.Providers.Controllers
             };
         }
 
-        private readonly LeapMotionHandDataConverter handDataProvider;
+        private readonly UltraleapHandDataConverter handDataProvider;
         private readonly HandDataPostProcessor postProcessor;
         private readonly Dictionary<Handedness, int> handIdMap = new Dictionary<Handedness, int>();
         private readonly Dictionary<Handedness, MixedRealityHandController> activeControllers = new Dictionary<Handedness, MixedRealityHandController>();
         private readonly Leap.Controller leapController = new Leap.Controller();
 
         /// <summary>
-        /// Gets the leap motion controller's current operation mode.
+        /// Gets the ultraleap controller's current operation mode.
         /// </summary>
-        private LeapMotionOperationMode OperationMode { get; }
+        public UltraleapOperationMode OperationMode { get; }
 
         /// <summary>
-        /// Offset applied to the rendered hands when in <see cref="LeapMotionOperationMode.Desktop"/> mode.
+        /// Offset applied to the rendered hands when in <see cref="UltraleapOperationMode.Desktop"/> mode.
         /// </summary>
-        private Vector3 LeapControllerOffset { get; }
+        public Vector3 LeapControllerOffset { get; }
 
         /// <inheritdoc />
         public override void Enable()
