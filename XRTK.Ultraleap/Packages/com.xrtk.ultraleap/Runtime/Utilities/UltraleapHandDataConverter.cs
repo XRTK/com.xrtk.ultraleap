@@ -12,6 +12,7 @@ using XRTK.Ultraleap.Extensions;
 using XRTK.Services;
 using XRTK.Extensions;
 using XRTK.Ultraleap.Providers.Controllers;
+using XRTK.Utilities;
 
 namespace XRTK.Ultraleap.Utilities
 {
@@ -46,6 +47,17 @@ namespace XRTK.Ultraleap.Utilities
         private readonly Dictionary<TrackedHandJoint, Transform> conversionProxyTransforms = new Dictionary<TrackedHandJoint, Transform>();
         private readonly MixedRealityPose[] jointPoses = new MixedRealityPose[HandData.JointCount];
 
+        private const int leapThumbIndex = (int)Finger.FingerType.TYPE_THUMB;
+        private const int leapIndexFingerIndex = (int)Finger.FingerType.TYPE_INDEX;
+        private const int leapMiddleFingerIndex = (int)Finger.FingerType.TYPE_MIDDLE;
+        private const int leapRingFingerIndex = (int)Finger.FingerType.TYPE_RING;
+        private const int leapLittleFingerIndex = (int)Finger.FingerType.TYPE_PINKY;
+
+        private const int leapMetacarpalBoneIndex = (int)Bone.BoneType.TYPE_METACARPAL;
+        private const int leapProximalBoneIndex = (int)Bone.BoneType.TYPE_PROXIMAL;
+        private const int leapIntermediateBoneIndex = (int)Bone.BoneType.TYPE_INTERMEDIATE;
+        private const int leapDistalBoneIndex = (int)Bone.BoneType.TYPE_DISTAL;
+
         /// <summary>
         /// Reads hand APIs for the current frame and converts it to agnostic <see cref="HandData"/>.
         /// </summary>
@@ -79,37 +91,134 @@ namespace XRTK.Ultraleap.Utilities
 
         private MixedRealityPose[] GetJointPoses(Hand hand, MixedRealityPose handRootPose)
         {
-            jointPoses[(int)TrackedHandJoint.Wrist] = GetJointPose(TrackedHandJoint.Wrist, handRootPose);
-            jointPoses[(int)TrackedHandJoint.Palm] = GetJointPose(TrackedHandJoint.Palm, handRootPose, hand);
+            for (var i = 0; i < HandData.JointCount; i++)
+            {
 
-            jointPoses[(int)TrackedHandJoint.ThumbMetacarpal] = GetJointPose(TrackedHandJoint.ThumbMetacarpal, handRootPose, null, hand.Fingers[(int)Finger.FingerType.TYPE_THUMB].Bone(Bone.BoneType.TYPE_METACARPAL));
-            jointPoses[(int)TrackedHandJoint.ThumbProximal] = GetJointPose(TrackedHandJoint.ThumbProximal, handRootPose, null, hand.Fingers[(int)Finger.FingerType.TYPE_THUMB].Bone(Bone.BoneType.TYPE_PROXIMAL));
-            jointPoses[(int)TrackedHandJoint.ThumbDistal] = GetJointPose(TrackedHandJoint.ThumbDistal, handRootPose, null, hand.Fingers[(int)Finger.FingerType.TYPE_THUMB].Bone(Bone.BoneType.TYPE_DISTAL));
-            jointPoses[(int)TrackedHandJoint.ThumbTip] = GetJointPose(TrackedHandJoint.ThumbTip, handRootPose, null, null, hand.Fingers[(int)Finger.FingerType.TYPE_THUMB]);
+                var trackedHandJoint = (TrackedHandJoint)i;
+                switch (trackedHandJoint)
+                {
+                    case TrackedHandJoint.Wrist:
+                        jointPoses[i] = new MixedRealityPose(
+                            hand.WristPosition.ToLeftHandedUnityVector3(),
+                            hand.Arm.Basis.rotation.ToLeftHandedUnityQuaternion());
+                        break;
+                    case TrackedHandJoint.Palm:
+                        jointPoses[i] = new MixedRealityPose(
+                            hand.PalmPosition.ToLeftHandedUnityVector3(),
+                            hand.Basis.rotation.ToLeftHandedUnityQuaternion());
+                        break;
+                    case TrackedHandJoint.ThumbMetacarpal:
+                        jointPoses[i] = new MixedRealityPose(
+                            hand.Fingers[leapThumbIndex].bones[leapMetacarpalBoneIndex].NextJoint.ToLeftHandedUnityVector3(),
+                            hand.Fingers[leapThumbIndex].bones[leapProximalBoneIndex].Rotation.ToLeftHandedUnityQuaternion());
+                        break;
+                    case TrackedHandJoint.ThumbProximal:
+                        jointPoses[i] = new MixedRealityPose(
+                            hand.Fingers[leapThumbIndex].bones[leapProximalBoneIndex].NextJoint.ToLeftHandedUnityVector3(),
+                            hand.Fingers[leapThumbIndex].bones[leapIntermediateBoneIndex].Rotation.ToLeftHandedUnityQuaternion());
+                        break;
+                    case TrackedHandJoint.ThumbDistal:
+                        jointPoses[i] = new MixedRealityPose(
+                            hand.Fingers[leapThumbIndex].bones[leapIntermediateBoneIndex].NextJoint.ToLeftHandedUnityVector3(),
+                            hand.Fingers[leapThumbIndex].bones[leapDistalBoneIndex].Rotation.ToLeftHandedUnityQuaternion());
+                        break;
+                    case TrackedHandJoint.ThumbTip:
+                        jointPoses[i] = new MixedRealityPose(
+                            hand.Fingers[leapThumbIndex].bones[leapDistalBoneIndex].NextJoint.ToLeftHandedUnityVector3(),
+                            hand.Fingers[leapThumbIndex].bones[leapDistalBoneIndex].Rotation.ToLeftHandedUnityQuaternion());
+                        break;
+                    case TrackedHandJoint.IndexProximal:
+                        jointPoses[i] = new MixedRealityPose(
+                            hand.Fingers[leapIndexFingerIndex].bones[leapMetacarpalBoneIndex].NextJoint.ToLeftHandedUnityVector3(),
+                            hand.Fingers[leapIndexFingerIndex].bones[leapProximalBoneIndex].Rotation.ToLeftHandedUnityQuaternion());
+                        break;
+                    case TrackedHandJoint.IndexIntermediate:
+                        jointPoses[i] = new MixedRealityPose(
+                            hand.Fingers[leapIndexFingerIndex].bones[leapProximalBoneIndex].NextJoint.ToLeftHandedUnityVector3(),
+                            hand.Fingers[leapIndexFingerIndex].bones[leapIntermediateBoneIndex].Rotation.ToLeftHandedUnityQuaternion());
+                        break;
+                    case TrackedHandJoint.IndexDistal:
+                        jointPoses[i] = new MixedRealityPose(
+                            hand.Fingers[leapIndexFingerIndex].bones[leapIntermediateBoneIndex].NextJoint.ToLeftHandedUnityVector3(),
+                            hand.Fingers[leapIndexFingerIndex].bones[leapDistalBoneIndex].Rotation.ToLeftHandedUnityQuaternion());
+                        break;
+                    case TrackedHandJoint.IndexTip:
+                        jointPoses[i] = new MixedRealityPose(
+                            hand.Fingers[leapIndexFingerIndex].bones[leapDistalBoneIndex].NextJoint.ToLeftHandedUnityVector3(),
+                            hand.Fingers[leapIndexFingerIndex].bones[leapDistalBoneIndex].Rotation.ToLeftHandedUnityQuaternion());
+                        break;
+                    case TrackedHandJoint.MiddleProximal:
+                        jointPoses[i] = new MixedRealityPose(
+                            hand.Fingers[leapMiddleFingerIndex].bones[leapMetacarpalBoneIndex].NextJoint.ToLeftHandedUnityVector3(),
+                            hand.Fingers[leapMiddleFingerIndex].bones[leapProximalBoneIndex].Rotation.ToLeftHandedUnityQuaternion());
+                        break;
+                    case TrackedHandJoint.MiddleIntermediate:
+                        jointPoses[i] = new MixedRealityPose(
+                            hand.Fingers[leapMiddleFingerIndex].bones[leapProximalBoneIndex].NextJoint.ToLeftHandedUnityVector3(),
+                            hand.Fingers[leapMiddleFingerIndex].bones[leapIntermediateBoneIndex].Rotation.ToLeftHandedUnityQuaternion());
+                        break;
+                    case TrackedHandJoint.MiddleDistal:
+                        jointPoses[i] = new MixedRealityPose(
+                            hand.Fingers[leapMiddleFingerIndex].bones[leapIntermediateBoneIndex].NextJoint.ToLeftHandedUnityVector3(),
+                            hand.Fingers[leapMiddleFingerIndex].bones[leapDistalBoneIndex].Rotation.ToLeftHandedUnityQuaternion());
+                        break;
+                    case TrackedHandJoint.MiddleTip:
+                        jointPoses[i] = new MixedRealityPose(
+                            hand.Fingers[leapMiddleFingerIndex].bones[leapDistalBoneIndex].NextJoint.ToLeftHandedUnityVector3(),
+                            hand.Fingers[leapMiddleFingerIndex].bones[leapDistalBoneIndex].Rotation.ToLeftHandedUnityQuaternion());
+                        break;
+                    case TrackedHandJoint.RingProximal:
+                        jointPoses[i] = new MixedRealityPose(
+                            hand.Fingers[leapRingFingerIndex].bones[leapMetacarpalBoneIndex].NextJoint.ToLeftHandedUnityVector3(),
+                            hand.Fingers[leapRingFingerIndex].bones[leapProximalBoneIndex].Rotation.ToLeftHandedUnityQuaternion());
+                        break;
+                    case TrackedHandJoint.RingIntermediate:
+                        jointPoses[i] = new MixedRealityPose(
+                            hand.Fingers[leapRingFingerIndex].bones[leapProximalBoneIndex].NextJoint.ToLeftHandedUnityVector3(),
+                            hand.Fingers[leapRingFingerIndex].bones[leapIntermediateBoneIndex].Rotation.ToLeftHandedUnityQuaternion());
+                        break;
+                    case TrackedHandJoint.RingDistal:
+                        jointPoses[i] = new MixedRealityPose(
+                            hand.Fingers[leapRingFingerIndex].bones[leapIntermediateBoneIndex].NextJoint.ToLeftHandedUnityVector3(),
+                            hand.Fingers[leapRingFingerIndex].bones[leapDistalBoneIndex].Rotation.ToLeftHandedUnityQuaternion());
+                        break;
+                    case TrackedHandJoint.RingTip:
+                        jointPoses[i] = new MixedRealityPose(
+                            hand.Fingers[leapRingFingerIndex].bones[leapDistalBoneIndex].NextJoint.ToLeftHandedUnityVector3(),
+                            hand.Fingers[leapRingFingerIndex].bones[leapDistalBoneIndex].Rotation.ToLeftHandedUnityQuaternion());
+                        break;
+                    case TrackedHandJoint.LittleMetacarpal:
+                        jointPoses[i] = new MixedRealityPose(
+                            hand.Fingers[leapLittleFingerIndex].bones[leapMetacarpalBoneIndex].PrevJoint.ToLeftHandedUnityVector3(),
+                            hand.Fingers[leapLittleFingerIndex].bones[leapProximalBoneIndex].Rotation.ToLeftHandedUnityQuaternion());
+                        break;
+                    case TrackedHandJoint.LittleProximal:
+                        jointPoses[i] = new MixedRealityPose(
+                            hand.Fingers[leapLittleFingerIndex].bones[leapMetacarpalBoneIndex].NextJoint.ToLeftHandedUnityVector3(),
+                            hand.Fingers[leapLittleFingerIndex].bones[leapProximalBoneIndex].Rotation.ToLeftHandedUnityQuaternion());
+                        break;
+                    case TrackedHandJoint.LittleIntermediate:
+                        jointPoses[i] = new MixedRealityPose(
+                            hand.Fingers[leapLittleFingerIndex].bones[leapProximalBoneIndex].NextJoint.ToLeftHandedUnityVector3(),
+                            hand.Fingers[leapLittleFingerIndex].bones[leapIntermediateBoneIndex].Rotation.ToLeftHandedUnityQuaternion());
+                        break;
+                    case TrackedHandJoint.LittleDistal:
+                        jointPoses[i] = new MixedRealityPose(
+                            hand.Fingers[leapLittleFingerIndex].bones[leapIntermediateBoneIndex].NextJoint.ToLeftHandedUnityVector3(),
+                            hand.Fingers[leapLittleFingerIndex].bones[leapDistalBoneIndex].Rotation.ToLeftHandedUnityQuaternion());
+                        break;
+                    case TrackedHandJoint.LittleTip:
+                        jointPoses[i] = new MixedRealityPose(
+                            hand.Fingers[leapLittleFingerIndex].bones[leapDistalBoneIndex].NextJoint.ToLeftHandedUnityVector3(),
+                            hand.Fingers[leapLittleFingerIndex].bones[leapDistalBoneIndex].Rotation.ToLeftHandedUnityQuaternion());
+                        break;
+                }
+            }
 
-            jointPoses[(int)TrackedHandJoint.IndexMetacarpal] = GetJointPose(TrackedHandJoint.IndexMetacarpal, handRootPose, null, hand.Fingers[(int)Finger.FingerType.TYPE_INDEX].Bone(Bone.BoneType.TYPE_METACARPAL));
-            jointPoses[(int)TrackedHandJoint.IndexProximal] = GetJointPose(TrackedHandJoint.IndexProximal, handRootPose, null, hand.Fingers[(int)Finger.FingerType.TYPE_INDEX].Bone(Bone.BoneType.TYPE_METACARPAL));
-            jointPoses[(int)TrackedHandJoint.IndexIntermediate] = GetJointPose(TrackedHandJoint.IndexIntermediate, handRootPose, null, hand.Fingers[(int)Finger.FingerType.TYPE_INDEX].Bone(Bone.BoneType.TYPE_INTERMEDIATE));
-            jointPoses[(int)TrackedHandJoint.IndexDistal] = GetJointPose(TrackedHandJoint.IndexDistal, handRootPose, null, hand.Fingers[(int)Finger.FingerType.TYPE_INDEX].Bone(Bone.BoneType.TYPE_DISTAL));
-            jointPoses[(int)TrackedHandJoint.IndexTip] = GetJointPose(TrackedHandJoint.IndexTip, handRootPose, null, null, hand.Fingers[(int)Finger.FingerType.TYPE_INDEX]);
-
-            jointPoses[(int)TrackedHandJoint.MiddleMetacarpal] = GetJointPose(TrackedHandJoint.MiddleMetacarpal, handRootPose, null, hand.Fingers[(int)Finger.FingerType.TYPE_MIDDLE].Bone(Bone.BoneType.TYPE_METACARPAL));
-            jointPoses[(int)TrackedHandJoint.MiddleProximal] = GetJointPose(TrackedHandJoint.MiddleProximal, handRootPose, null, hand.Fingers[(int)Finger.FingerType.TYPE_MIDDLE].Bone(Bone.BoneType.TYPE_METACARPAL));
-            jointPoses[(int)TrackedHandJoint.MiddleIntermediate] = GetJointPose(TrackedHandJoint.MiddleIntermediate, handRootPose, null, hand.Fingers[(int)Finger.FingerType.TYPE_MIDDLE].Bone(Bone.BoneType.TYPE_INTERMEDIATE));
-            jointPoses[(int)TrackedHandJoint.MiddleDistal] = GetJointPose(TrackedHandJoint.MiddleDistal, handRootPose, null, hand.Fingers[(int)Finger.FingerType.TYPE_MIDDLE].Bone(Bone.BoneType.TYPE_DISTAL));
-            jointPoses[(int)TrackedHandJoint.MiddleTip] = GetJointPose(TrackedHandJoint.MiddleTip, handRootPose, null, null, hand.Fingers[(int)Finger.FingerType.TYPE_MIDDLE]);
-
-            jointPoses[(int)TrackedHandJoint.RingMetacarpal] = GetJointPose(TrackedHandJoint.RingMetacarpal, handRootPose, null, hand.Fingers[(int)Finger.FingerType.TYPE_RING].Bone(Bone.BoneType.TYPE_METACARPAL));
-            jointPoses[(int)TrackedHandJoint.RingProximal] = GetJointPose(TrackedHandJoint.RingProximal, handRootPose, null, hand.Fingers[(int)Finger.FingerType.TYPE_RING].Bone(Bone.BoneType.TYPE_METACARPAL));
-            jointPoses[(int)TrackedHandJoint.RingIntermediate] = GetJointPose(TrackedHandJoint.RingIntermediate, handRootPose, null, hand.Fingers[(int)Finger.FingerType.TYPE_RING].Bone(Bone.BoneType.TYPE_INTERMEDIATE));
-            jointPoses[(int)TrackedHandJoint.RingDistal] = GetJointPose(TrackedHandJoint.RingDistal, handRootPose, null, hand.Fingers[(int)Finger.FingerType.TYPE_RING].Bone(Bone.BoneType.TYPE_DISTAL));
-            jointPoses[(int)TrackedHandJoint.RingTip] = GetJointPose(TrackedHandJoint.RingTip, handRootPose, null, null, hand.Fingers[(int)Finger.FingerType.TYPE_RING]);
-
-            jointPoses[(int)TrackedHandJoint.LittleMetacarpal] = GetJointPose(TrackedHandJoint.LittleMetacarpal, handRootPose, null, hand.Fingers[(int)Finger.FingerType.TYPE_PINKY].Bone(Bone.BoneType.TYPE_METACARPAL));
-            jointPoses[(int)TrackedHandJoint.LittleProximal] = GetJointPose(TrackedHandJoint.LittleProximal, handRootPose, null, hand.Fingers[(int)Finger.FingerType.TYPE_PINKY].Bone(Bone.BoneType.TYPE_METACARPAL));
-            jointPoses[(int)TrackedHandJoint.LittleIntermediate] = GetJointPose(TrackedHandJoint.LittleIntermediate, handRootPose, null, hand.Fingers[(int)Finger.FingerType.TYPE_PINKY].Bone(Bone.BoneType.TYPE_INTERMEDIATE));
-            jointPoses[(int)TrackedHandJoint.LittleDistal] = GetJointPose(TrackedHandJoint.LittleDistal, handRootPose, null, hand.Fingers[(int)Finger.FingerType.TYPE_PINKY].Bone(Bone.BoneType.TYPE_DISTAL));
-            jointPoses[(int)TrackedHandJoint.LittleTip] = GetJointPose(TrackedHandJoint.LittleTip, handRootPose, null, null, hand.Fingers[(int)Finger.FingerType.TYPE_PINKY]);
+            // Fill missing joints by estimating their pose.
+            jointPoses[(int)TrackedHandJoint.RingMetacarpal] = HandUtilities.GetEstimatedRingMetacarpalPose(jointPoses);
+            jointPoses[(int)TrackedHandJoint.MiddleMetacarpal] = HandUtilities.GetEstimatedMiddleMetacarpalPose(jointPoses);
+            jointPoses[(int)TrackedHandJoint.IndexMetacarpal] = HandUtilities.GetEstimatedIndexMetacarpalPose(jointPoses);
 
             return jointPoses;
         }
@@ -119,11 +228,8 @@ namespace XRTK.Ultraleap.Utilities
         /// </summary>
         /// <param name="trackedHandJoint">The <see cref="TrackedHandJoint"/> Id for the joint to get a <see cref="MixedRealityPose"/> for.</param>
         /// <param name="handRootPose">The hand's root <see cref="MixedRealityPose"/>. Joint poses are always relative to the root pose.</param>
-        /// <param name="hand"><see cref="Hand"/> retrieved from the platform.</param>
-        /// <param name="bone"><see cref="Bone"/> retrieved from the platform.</param>
-        /// <param name="finger"><see cref="Finger"/> retrieved from the platform.</param>
         /// <returns>Joint <see cref="MixedRealityPose"/> relative to the hand's root pose.</returns>
-        private MixedRealityPose GetJointPose(TrackedHandJoint trackedHandJoint, MixedRealityPose handRootPose, Hand hand = null, Bone bone = null, Finger finger = null)
+        private MixedRealityPose GetJointPose(TrackedHandJoint trackedHandJoint, MixedRealityPose handRootPose, MixedRealityPose jointPose)
         {
             var jointTransform = GetProxyTransform(trackedHandJoint);
             var playspaceTransform = MixedRealityToolkit.CameraSystem.MainCameraRig.PlayspaceTransform;
@@ -137,31 +243,8 @@ namespace XRTK.Ultraleap.Utilities
             {
                 jointTransform.parent = playspaceTransform;
 
-                Vector3 jointPosition;
-                Quaternion jointRotation;
-
-                if (trackedHandJoint == TrackedHandJoint.ThumbTip ||
-                    trackedHandJoint == TrackedHandJoint.IndexTip ||
-                    trackedHandJoint == TrackedHandJoint.MiddleTip ||
-                    trackedHandJoint == TrackedHandJoint.RingTip ||
-                    trackedHandJoint == TrackedHandJoint.LittleTip)
-                {
-                    jointPosition = finger.TipPosition.ToVector3();
-                    jointRotation = Quaternion.Euler(finger.Direction.ToVector3());
-                }
-                else if (trackedHandJoint == TrackedHandJoint.Palm)
-                {
-                    jointPosition = hand.PalmPosition.ToVector3();
-                    jointRotation = Quaternion.LookRotation(handRootPose.Forward, -1 * hand.PalmNormal.ToVector3());
-                }
-                else
-                {
-                    jointPosition = bone.PrevJoint.ToVector3();
-                    jointRotation = bone.Rotation.ToQuaternion();
-                }
-
-                jointTransform.localPosition = playspaceTransform.InverseTransformPoint(playspaceTransform.position + playspaceTransform.rotation * jointPosition);
-                jointTransform.localRotation = Quaternion.Inverse(playspaceTransform.rotation) * playspaceTransform.rotation * jointRotation;
+                jointTransform.localPosition = playspaceTransform.InverseTransformPoint(playspaceTransform.position + playspaceTransform.rotation * jointPose.Position);
+                jointTransform.localRotation = Quaternion.Inverse(playspaceTransform.rotation) * playspaceTransform.rotation * jointPose.Rotation;
                 jointTransform.parent = conversionProxyRootTransform;
             }
 
@@ -178,8 +261,8 @@ namespace XRTK.Ultraleap.Utilities
         private MixedRealityPose GetHandRootPose(Hand hand)
         {
             var playspaceTransform = MixedRealityToolkit.CameraSystem.MainCameraRig.PlayspaceTransform;
-            var rootPosition = playspaceTransform.InverseTransformPoint(playspaceTransform.position + playspaceTransform.rotation * (hand.Arm.WristPosition.ToVector3()));
-            var rootRotation = Quaternion.Inverse(playspaceTransform.rotation) * playspaceTransform.rotation * Quaternion.identity;
+            var rootPosition = playspaceTransform.InverseTransformPoint(playspaceTransform.position + playspaceTransform.rotation * hand.WristPosition.ToLeftHandedUnityVector3());
+            var rootRotation = Quaternion.Inverse(playspaceTransform.rotation) * playspaceTransform.rotation * hand.Arm.Basis.rotation.ToLeftHandedUnityQuaternion();
 
             return new MixedRealityPose(rootPosition, rootRotation);
         }
