@@ -44,7 +44,6 @@ namespace XRTK.Ultraleap.Utilities
         private readonly UltraleapHandControllerDataProvider dataProvider;
         private Transform conversionProxyRootTransform;
         private readonly Dictionary<TrackedHandJoint, Transform> conversionProxyTransforms = new Dictionary<TrackedHandJoint, Transform>();
-        private const float millimeterToMeterDivider = 1000f;
         private readonly MixedRealityPose[] jointPoses = new MixedRealityPose[HandData.JointCount];
 
         /// <summary>
@@ -147,17 +146,17 @@ namespace XRTK.Ultraleap.Utilities
                     trackedHandJoint == TrackedHandJoint.RingTip ||
                     trackedHandJoint == TrackedHandJoint.LittleTip)
                 {
-                    jointPosition = finger.TipPosition.ToVector3() / millimeterToMeterDivider;
+                    jointPosition = finger.TipPosition.ToVector3();
                     jointRotation = Quaternion.Euler(finger.Direction.ToVector3());
                 }
                 else if (trackedHandJoint == TrackedHandJoint.Palm)
                 {
-                    jointPosition = hand.PalmPosition.ToVector3() / millimeterToMeterDivider;
+                    jointPosition = hand.PalmPosition.ToVector3();
                     jointRotation = Quaternion.LookRotation(handRootPose.Forward, -1 * hand.PalmNormal.ToVector3());
                 }
                 else
                 {
-                    jointPosition = bone.PrevJoint.ToVector3() / millimeterToMeterDivider;
+                    jointPosition = bone.PrevJoint.ToVector3();
                     jointRotation = bone.Rotation.ToQuaternion();
                 }
 
@@ -179,7 +178,7 @@ namespace XRTK.Ultraleap.Utilities
         private MixedRealityPose GetHandRootPose(Hand hand)
         {
             var playspaceTransform = MixedRealityToolkit.CameraSystem.MainCameraRig.PlayspaceTransform;
-            var rootPosition = playspaceTransform.InverseTransformPoint(playspaceTransform.position + playspaceTransform.rotation * (hand.Arm.WristPosition.ToVector3() / millimeterToMeterDivider));
+            var rootPosition = playspaceTransform.InverseTransformPoint(playspaceTransform.position + playspaceTransform.rotation * (hand.Arm.WristPosition.ToVector3()));
             var rootRotation = Quaternion.Inverse(playspaceTransform.rotation) * playspaceTransform.rotation * Quaternion.identity;
 
             return new MixedRealityPose(rootPosition, rootRotation);

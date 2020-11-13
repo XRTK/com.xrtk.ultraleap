@@ -10,11 +10,15 @@ namespace XRTK.Ultraleap.Extensions
     /// </summary>
     public static class VectorExtensions
     {
+        private const float millimeterToMeterDivider = 1000f;
+
         /// <summary>
-        /// Converts a <see cref="Leap.Vector"/> object to a <see cref="Vector3"/> object.
+        /// Converts a <see cref="Leap.Vector"/> object to a <see cref="Vector3"/> object. The input
+        /// vector is converted to Unity's left-handed coordinate system and coordinates are scales from
+        /// millimeters to meters.
         /// </summary>
         /// <param name="v">The <see cref="Leap.Vector"/> to convert.</param>
         /// <returns>A <see cref="Vector3"/>.</returns>
-        public static Vector3 ToVector3(this Leap.Vector v) => new Vector3(v.x, v.y, -v.z);
+        public static Vector3 ToVector3(this Leap.Vector v) => new Vector3(v.x, v.y, -v.z) / millimeterToMeterDivider;
     }
 }
