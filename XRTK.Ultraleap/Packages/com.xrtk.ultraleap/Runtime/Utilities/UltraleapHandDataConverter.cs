@@ -201,8 +201,6 @@ namespace XRTK.Ultraleap.Utilities
 
         private MixedRealityPose GetHandOffsetPose(UltraleapOperationMode operationMode, Vector3 offset)
         {
-            var anchoredPosition = Vector3.zero;
-
             switch (operationMode)
             {
                 case UltraleapOperationMode.Desktop:
@@ -210,11 +208,11 @@ namespace XRTK.Ultraleap.Utilities
                         ? MixedRealityToolkit.CameraSystem.MainCameraRig.PlayerCamera.transform
                         : CameraCache.Main.transform;
 
-                    anchoredPosition = cameraTransform.position + offset;
-                    break;
+                    return new MixedRealityPose(cameraTransform.position + offset, Quaternion.identity);
+                case UltraleapOperationMode.HeadsetMounted:
+                default:
+                    return MixedRealityPose.ZeroIdentity;
             }
-
-            return new MixedRealityPose(anchoredPosition, Quaternion.identity);
         }
     }
 }
