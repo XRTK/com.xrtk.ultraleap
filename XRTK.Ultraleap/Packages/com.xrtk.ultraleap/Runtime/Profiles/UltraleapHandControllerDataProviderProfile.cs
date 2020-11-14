@@ -25,18 +25,12 @@ namespace XRTK.Ultraleap.Profiles
         public UltraleapOperationMode OperationMode => operationMode;
 
         [SerializeField]
-        [Tooltip("Adds an offset to the game object with LeapServiceProvider attached.  This offset is only applied if the leapControllerOrientation" +
-        "is LeapControllerOrientation.Desk and is necessary for the hand to appear in front of the main camera. If the leap controller is on the " +
-        "desk, the LeapServiceProvider is added to the scene instead of the LeapXRServiceProvider. The anchor point for the hands is the position of the" +
-        "game object with the LeapServiceProvider attached.")]
-        private Vector3 leapControllerOffset = new Vector3(0, -0.2f, 0.2f);
+        [Tooltip("Applies only to UltraleapOperationMode.Desktop. Adds an offset to the recognized hand root position relative to the main camera, so hands are visible.")]
+        private Vector3 leapControllerDesktopModeOffset = new Vector3(0, -0.2f, 0.2f);
 
         /// <summary>
-        /// Adds an offset to the game object with LeapServiceProvider attached.  This offset is only applied if the leapControllerOrientation
-        /// is LeapControllerOrientation.Desk and is necessary for the hand to appear in front of the main camera. If the leap controller is on the 
-        /// desk, the LeapServiceProvider is added to the scene instead of the LeapXRServiceProvider. The anchor point for the hands is the position of the 
-        /// game object with the LeapServiceProvider attached.
+        /// Applies only to UltraleapOperationMode.Desktop. Adds an offset to the recognized hand root position relative to the main camera, so hands are visible.
         /// </summary>
-        public Vector3 LeapControllerOffset => leapControllerOffset;
+        public Vector3 LeapControllerDesktopModeOffset => leapControllerDesktopModeOffset;
     }
 }
