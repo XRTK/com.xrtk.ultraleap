@@ -50,7 +50,7 @@ namespace XRTK.Ultraleap.Editor.Inspectors
 
                 if (deskModeDisabled)
                 {
-                    EditorGUILayout.HelpBox("Controller offset is only applied when in desk mode.", MessageType.Info);
+                    EditorGUILayout.HelpBox("Controller offset is only applied when in desktop mode.", MessageType.Info);
                 }
 
                 EditorGUI.indentLevel--;
