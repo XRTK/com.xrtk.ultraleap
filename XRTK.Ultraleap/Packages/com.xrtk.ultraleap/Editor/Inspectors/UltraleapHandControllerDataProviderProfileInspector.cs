@@ -17,7 +17,7 @@ namespace XRTK.Ultraleap.Editor.Inspectors
     public class UltraleapHandControllerDataProviderProfileInspector : BaseMixedRealityHandControllerDataProviderProfileInspector
     {
         private SerializedProperty operationMode;
-        private SerializedProperty leapControllerOffset;
+        private SerializedProperty leapControllerDesktopModeOffset;
 
         private bool showUltraleapHandTrackingSettings = true;
         private static readonly GUIContent ultraleapSettingsFoldoutHeader = new GUIContent("Ultraleap Hand Tracking Settings");
@@ -26,7 +26,7 @@ namespace XRTK.Ultraleap.Editor.Inspectors
         {
             base.OnEnable();
             operationMode = serializedObject.FindProperty(nameof(operationMode));
-            leapControllerOffset = serializedObject.FindProperty(nameof(leapControllerOffset));
+            leapControllerDesktopModeOffset = serializedObject.FindProperty(nameof(leapControllerDesktopModeOffset));
         }
 
         public override void OnInspectorGUI()
@@ -45,7 +45,7 @@ namespace XRTK.Ultraleap.Editor.Inspectors
                 bool deskModeDisabled = (UltraleapOperationMode)operationMode.intValue != UltraleapOperationMode.Desktop;
                 using (new EditorGUI.DisabledScope(deskModeDisabled))
                 {
-                    EditorGUILayout.PropertyField(leapControllerOffset);
+                    EditorGUILayout.PropertyField(leapControllerDesktopModeOffset);
                 }
 
                 if (deskModeDisabled)
