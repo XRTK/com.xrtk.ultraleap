@@ -22,4 +22,4 @@ MonoBehaviour:
   boundsMode: 0
   trackedPoses: []
   operationMode: 0
-  leapControllerOffset: {x: 0, y: -0.2, z: 0.5}
+  leapControllerDesktopModeOffset: {x: 0, y: -0.2, z: 0.3}
