@@ -65,15 +65,18 @@ namespace XRTK.Ultraleap.Utilities
 
             if (handData.TrackingState == TrackingState.Tracked)
             {
-                handData.RootPose = GetHandRootPose(hand, dataProvider.OperationMode, dataProvider.LeapControllerOffset);
-                handData.Joints = GetJointPoses(hand, handData.RootPose);
+                var offsetPose = GetHandOffsetPose(dataProvider.OperationMode, dataProvider.LeapControllerOffset);
+                var handRootPose = GetHandRootPose(hand);
+
+                handData.RootPose = offsetPose + handRootPose;
+                handData.Joints = GetJointPoses(hand, handRootPose, dataProvider.OperationMode, dataProvider.LeapControllerOffset);
                 handData.Mesh = new HandMeshData();
             }
 
             return true;
         }
 
-        private MixedRealityPose[] GetJointPoses(Hand hand, MixedRealityPose handRootPose)
+        private MixedRealityPose[] GetJointPoses(Hand hand, MixedRealityPose handRootPose, UltraleapOperationMode operationMode, Vector3 offset)
         {
             for (var i = 0; i < HandData.JointCount; i++)
             {
@@ -177,9 +180,7 @@ namespace XRTK.Ultraleap.Utilities
                         break;
                 }
 
-                jointPoses[i] = new MixedRealityPose(
-                    position,
-                    rotation);
+                jointPoses[i] = new MixedRealityPose(position - handRootPose.Position, rotation);
             }
 
             // Fill missing joints by estimating their pose.
@@ -190,10 +191,16 @@ namespace XRTK.Ultraleap.Utilities
             return jointPoses;
         }
 
-        private MixedRealityPose GetHandRootPose(Hand hand, UltraleapOperationMode operationMode, Vector3 offset)
+        private MixedRealityPose GetHandRootPose(Hand hand)
         {
             var position = hand.WristPosition.ToLeftHandedUnityVector3();
             var rotation = hand.Arm.Basis.rotation.ToLeftHandedUnityQuaternion();
+
+            return new MixedRealityPose(position, rotation);
+        }
+
+        private MixedRealityPose GetHandOffsetPose(UltraleapOperationMode operationMode, Vector3 offset)
+        {
             var anchoredPosition = Vector3.zero;
 
             switch (operationMode)
@@ -207,15 +214,7 @@ namespace XRTK.Ultraleap.Utilities
                     break;
             }
 
-            return new MixedRealityPose(
-                anchoredPosition + position,
-                rotation);
-
-            //var playspaceTransform = MixedRealityToolkit.CameraSystem.MainCameraRig.PlayspaceTransform;
-            //var rootPosition = playspaceTransform.InverseTransformPoint(playspaceTransform.position + playspaceTransform.rotation * hand.WristPosition.ToLeftHandedUnityVector3());
-            //var rootRotation = Quaternion.Inverse(playspaceTransform.rotation) * playspaceTransform.rotation * hand.Arm.Basis.rotation.ToLeftHandedUnityQuaternion();
-
-            //return new MixedRealityPose(rootPosition, rootRotation);
+            return new MixedRealityPose(anchoredPosition, Quaternion.identity);
         }
     }
 }

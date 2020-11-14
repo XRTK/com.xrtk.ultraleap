@@ -26,7 +26,7 @@ namespace XRTK.Ultraleap.Providers.Controllers
             : base(name, priority, profile, parentService)
         {
             OperationMode = profile.OperationMode;
-            LeapControllerOffset = profile.LeapControllerOffset;
+            LeapControllerOffset = profile.LeapControllerDesktopModeOffset;
             handDataProvider = new UltraleapHandDataConverter(this);
 
             postProcessor = new HandDataPostProcessor(TrackedPoses)
