@@ -401,6 +401,9 @@ namespace XRTK.Ultraleap.Providers.Controllers
             var position = hand.WristPosition.ToLeftHandedUnityVector3();
             var rotation = hand.Arm.Basis.rotation.ToLeftHandedUnityQuaternion();
 
+            //var playspaceTransform = MixedRealityToolkit.CameraSystem.MainCameraRig.PlayspaceTransform;
+            //position = playspaceTransform.InverseTransformPoint(position);
+
             return new MixedRealityPose(position, rotation);
         }
 
@@ -421,7 +424,7 @@ namespace XRTK.Ultraleap.Providers.Controllers
                         ? MixedRealityToolkit.CameraSystem.MainCameraRig.PlayerCamera.transform
                         : CameraCache.Main.transform;
 
-                    return new MixedRealityPose(cameraTransform.position + desktopModeOffset, Quaternion.identity);
+                    return new MixedRealityPose(cameraTransform.localPosition + cameraTransform.localRotation * desktopModeOffset, Quaternion.identity);
                 case UltraleapOperationMode.HeadsetMounted:
                 default:
                     return MixedRealityPose.ZeroIdentity;
