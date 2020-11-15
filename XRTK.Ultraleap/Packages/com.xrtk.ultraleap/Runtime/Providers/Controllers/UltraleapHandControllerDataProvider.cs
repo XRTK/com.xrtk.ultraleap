@@ -401,8 +401,9 @@ namespace XRTK.Ultraleap.Providers.Controllers
             var position = hand.WristPosition.ToLeftHandedUnityVector3();
             var rotation = hand.Arm.Basis.rotation.ToLeftHandedUnityQuaternion();
 
-            //var playspaceTransform = MixedRealityToolkit.CameraSystem.MainCameraRig.PlayspaceTransform;
-            //position = playspaceTransform.InverseTransformPoint(position);
+            var playspaceTransform = MixedRealityToolkit.CameraSystem.MainCameraRig.PlayspaceTransform;
+            position = playspaceTransform.position + playspaceTransform.rotation * position;
+            rotation = playspaceTransform.rotation * rotation;
 
             return new MixedRealityPose(position, rotation);
         }
