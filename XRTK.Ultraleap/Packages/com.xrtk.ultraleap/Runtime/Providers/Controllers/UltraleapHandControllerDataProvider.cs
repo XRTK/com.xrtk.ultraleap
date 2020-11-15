@@ -17,9 +17,15 @@ using XRTK.Attributes;
 using XRTK.Definitions.Controllers.Hands;
 using XRTK.Ultraleap.Extensions;
 using XRTK.Utilities;
+using XRTK.Extensions;
 
 namespace XRTK.Ultraleap.Providers.Controllers
 {
+    /// <summary>
+    /// Enables the XRTK hand tracking implementation to run powered by Ultraleap hand tracking
+    /// sensors, like e.g. the Leap Motion device, by providing <see cref="HandData"/> to the
+    /// <see cref="MixedRealityHandController"/>.
+    /// </summary>
     [RuntimePlatform(typeof(UltraleapPlatform))]
     [System.Runtime.InteropServices.Guid("61cec407-ffa4-4a5c-b96a-5229348f85c2")]
     public class UltraleapHandControllerDataProvider : BaseHandControllerDataProvider
@@ -50,6 +56,9 @@ namespace XRTK.Ultraleap.Providers.Controllers
         private readonly Controller leapController = new Controller();
         private readonly MixedRealityPose[] jointPoses = new MixedRealityPose[HandData.JointCount];
 
+        private GameObject rootConversionProxy;
+        private GameObject jointConversionProxy;
+
         /// <summary>
         /// Gets the ultraleap controller's current operation mode.
         /// </summary>
@@ -72,6 +81,17 @@ namespace XRTK.Ultraleap.Providers.Controllers
             }
 
             leapController.FrameReady += LeapController_FrameReady;
+
+            if (rootConversionProxy.IsNull())
+            {
+                rootConversionProxy = new GameObject("Ultraleap Hand Root Conversion Proxy");
+                rootConversionProxy.transform.SetParent(MixedRealityToolkit.CameraSystem.MainCameraRig.PlayspaceTransform);
+                rootConversionProxy.SetActive(false);
+
+                jointConversionProxy = new GameObject("Ultraleap Hand Joint Conversion Proxy");
+                jointConversionProxy.transform.SetParent(rootConversionProxy.transform);
+                jointConversionProxy.SetActive(false);
+            }
         }
 
         /// <inheritdoc />
@@ -91,6 +111,11 @@ namespace XRTK.Ultraleap.Providers.Controllers
 
             activeControllers.Clear();
             handIdMap.Clear();
+
+            if (!rootConversionProxy.IsNull())
+            {
+                rootConversionProxy.Destroy();
+            }
         }
 
         #region Leap Controller Event Handlers
@@ -244,6 +269,9 @@ namespace XRTK.Ultraleap.Providers.Controllers
 
         private MixedRealityPose[] GetJointPoses(Hand hand, MixedRealityPose handRootPose)
         {
+            rootConversionProxy.transform.position = handRootPose.Position;
+            rootConversionProxy.transform.rotation = handRootPose.Rotation;
+
             for (var i = 0; i < HandData.JointCount; i++)
             {
                 var trackedHandJoint = (TrackedHandJoint)i;
@@ -346,9 +374,12 @@ namespace XRTK.Ultraleap.Providers.Controllers
                         break;
                 }
 
+                jointConversionProxy.transform.position = position;
+                jointConversionProxy.transform.rotation = rotation;
+
                 jointPoses[i] = new MixedRealityPose(
-                    position - handRootPose.Position, // Set the joint pose origin to the hand's root position.
-                    rotation);
+                    jointConversionProxy.transform.localPosition,
+                    jointConversionProxy.transform.localRotation);
             }
 
             // Fill missing joints by estimating their pose.
