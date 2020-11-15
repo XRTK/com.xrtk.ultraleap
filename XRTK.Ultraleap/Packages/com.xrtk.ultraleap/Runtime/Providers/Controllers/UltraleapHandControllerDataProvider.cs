@@ -29,7 +29,7 @@ namespace XRTK.Ultraleap.Providers.Controllers
             : base(name, priority, profile, parentService)
         {
             OperationMode = profile.OperationMode;
-            LeapControllerOffset = profile.LeapControllerDesktopModeOffset;
+            LeapControllerDesktopModeOffset = profile.LeapControllerDesktopModeOffset;
             postProcessor = new HandDataPostProcessor(TrackedPoses);
         }
 
@@ -53,12 +53,13 @@ namespace XRTK.Ultraleap.Providers.Controllers
         /// <summary>
         /// Gets the ultraleap controller's current operation mode.
         /// </summary>
-        public UltraleapOperationMode OperationMode { get; }
+        private UltraleapOperationMode OperationMode { get; }
 
         /// <summary>
-        /// Offset applied to the rendered hands when in <see cref="UltraleapOperationMode.Desktop"/> mode.
+        /// Offset applied to the rendered hands when in <see cref="UltraleapOperationMode.Desktop"/> mode,
+        /// this is mostly used to have the hands appear in front of the camera.
         /// </summary>
-        public Vector3 LeapControllerOffset { get; }
+        private Vector3 LeapControllerDesktopModeOffset { get; }
 
         /// <inheritdoc />
         public override void Enable()
@@ -209,9 +210,9 @@ namespace XRTK.Ultraleap.Providers.Controllers
         }
 
         /// <summary>
-        /// Reads hand APIs for the current frame and converts it to agnostic <see cref="HandData"/>.
+        /// Transforms platform provided hand tracking information to agnostic <see cref="HandData"/>.
         /// </summary>
-        /// <param name="handedness">The handedness of the hand to get <see cref="HandData"/> for.</param>
+        /// <param name="hand">The <see cref="Hand"/> tracking data provided by the platform.</param>
         /// <param name="handData">The output <see cref="HandData"/>.</param>
         /// <returns>True, if data conversion was a success.</returns>
         public bool TryGetHandData(Hand hand, out HandData handData)
@@ -230,18 +231,18 @@ namespace XRTK.Ultraleap.Providers.Controllers
 
             if (handData.TrackingState == TrackingState.Tracked)
             {
-                var offsetPose = GetHandOffsetPose(OperationMode, LeapControllerOffset);
+                var offsetPose = GetHandOffsetPose(OperationMode, LeapControllerDesktopModeOffset);
                 var handRootPose = GetHandRootPose(hand);
 
                 handData.RootPose = offsetPose + handRootPose;
-                handData.Joints = GetJointPoses(hand, handRootPose, OperationMode, LeapControllerOffset);
-                handData.Mesh = new HandMeshData();
+                handData.Joints = GetJointPoses(hand, handRootPose);
+                handData.Mesh = HandMeshData.Empty;
             }
 
             return true;
         }
 
-        private MixedRealityPose[] GetJointPoses(Hand hand, MixedRealityPose handRootPose, UltraleapOperationMode operationMode, Vector3 offset)
+        private MixedRealityPose[] GetJointPoses(Hand hand, MixedRealityPose handRootPose)
         {
             for (var i = 0; i < HandData.JointCount; i++)
             {
@@ -345,7 +346,9 @@ namespace XRTK.Ultraleap.Providers.Controllers
                         break;
                 }
 
-                jointPoses[i] = new MixedRealityPose(position - handRootPose.Position, rotation);
+                jointPoses[i] = new MixedRealityPose(
+                    position - handRootPose.Position, // Set the joint pose origin to the hand's root position.
+                    rotation);
             }
 
             // Fill missing joints by estimating their pose.
@@ -356,6 +359,12 @@ namespace XRTK.Ultraleap.Providers.Controllers
             return jointPoses;
         }
 
+        /// <summary>
+        /// Gets the <see cref="Hand"/>'s detected root pose. The root pose is the origin
+        /// for all joint poses.
+        /// </summary>
+        /// <param name="hand">Platform provided <see cref="Hand"/> data.</param>
+        /// <returns>The <see cref="Hand"/>'s root <see cref="MixedRealityPose"/>.</returns>
         private MixedRealityPose GetHandRootPose(Hand hand)
         {
             var position = hand.WristPosition.ToLeftHandedUnityVector3();
@@ -364,7 +373,15 @@ namespace XRTK.Ultraleap.Providers.Controllers
             return new MixedRealityPose(position, rotation);
         }
 
-        private MixedRealityPose GetHandOffsetPose(UltraleapOperationMode operationMode, Vector3 offset)
+        /// <summary>
+        /// Gets the offset <see cref="MixedRealityPose"/> to apply to the hand's detected position.
+        /// The offset depends on the device's current <see cref="UltraleapOperationMode"/> which can be
+        /// configured in the <see cref="UltraleapHandControllerDataProviderProfile"/>.
+        /// </summary>
+        /// <param name="operationMode">The device's current <see cref="UltraleapOperationMode"/>.</param>
+        /// <param name="desktopModeOffset">The offset to apply when in <see cref="UltraleapOperationMode.Desktop"/>.</param>
+        /// <returns>Offset <see cref="MixedRealityPose"/>.</returns>
+        private MixedRealityPose GetHandOffsetPose(UltraleapOperationMode operationMode, Vector3 desktopModeOffset)
         {
             switch (operationMode)
             {
@@ -373,7 +390,7 @@ namespace XRTK.Ultraleap.Providers.Controllers
                         ? MixedRealityToolkit.CameraSystem.MainCameraRig.PlayerCamera.transform
                         : CameraCache.Main.transform;
 
-                    return new MixedRealityPose(cameraTransform.position + offset, Quaternion.identity);
+                    return new MixedRealityPose(cameraTransform.position + desktopModeOffset, Quaternion.identity);
                 case UltraleapOperationMode.HeadsetMounted:
                 default:
                     return MixedRealityPose.ZeroIdentity;
