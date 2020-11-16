@@ -35,6 +35,7 @@ namespace XRTK.Ultraleap.Editor.Inspectors
 
             serializedObject.Update();
 
+            EditorGUILayout.Space();
             showUltraleapHandTrackingSettings = EditorGUILayoutExtensions.FoldoutWithBoldLabel(showUltraleapHandTrackingSettings, ultraleapSettingsFoldoutHeader, true);
             if (showUltraleapHandTrackingSettings)
             {
