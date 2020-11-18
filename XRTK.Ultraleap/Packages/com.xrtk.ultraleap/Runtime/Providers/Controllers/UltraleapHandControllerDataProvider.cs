@@ -35,8 +35,11 @@ namespace XRTK.Ultraleap.Providers.Controllers
             : base(name, priority, profile, parentService)
         {
             OperationMode = profile.OperationMode;
-            LeapControllerDesktopModeOffset = profile.LeapControllerDesktopModeOffset;
-            postProcessor = new HandDataPostProcessor(TrackedPoses);
+            LeapControllerOffset = profile.LeapControllerOffset;
+            postProcessor = new HandDataPostProcessor(TrackedPoses)
+            {
+                PlatformProvidesPointerPose = true
+            };
         }
 
         private const int leapThumbIndex = (int)Finger.FingerType.TYPE_THUMB;
@@ -49,6 +52,10 @@ namespace XRTK.Ultraleap.Providers.Controllers
         private const int leapProximalBoneIndex = (int)Bone.BoneType.TYPE_PROXIMAL;
         private const int leapIntermediateBoneIndex = (int)Bone.BoneType.TYPE_INTERMEDIATE;
         private const int leapDistalBoneIndex = (int)Bone.BoneType.TYPE_DISTAL;
+
+        private const float defaultDeviceOffsetYAxis = 0f;
+        private const float defaultDeviceOffsetZAxis = 0.12f;
+        private const float defaultDeviceTiltXAxis = 5f;
 
         private readonly HandDataPostProcessor postProcessor;
         private readonly Dictionary<Handedness, int> handIdMap = new Dictionary<Handedness, int>();
@@ -68,7 +75,7 @@ namespace XRTK.Ultraleap.Providers.Controllers
         /// Offset applied to the rendered hands when in <see cref="UltraleapOperationMode.Desktop"/> mode,
         /// this is mostly used to have the hands appear in front of the camera.
         /// </summary>
-        private Vector3 LeapControllerDesktopModeOffset { get; }
+        private Vector3 LeapControllerOffset { get; }
 
         /// <inheritdoc />
         public override void Enable()
@@ -256,11 +263,12 @@ namespace XRTK.Ultraleap.Providers.Controllers
 
             if (handData.TrackingState == TrackingState.Tracked)
             {
-                var offsetPose = GetHandOffsetPose(OperationMode, LeapControllerDesktopModeOffset);
+                var offsetPose = GetHandOffsetPose(OperationMode, LeapControllerOffset);
                 var handRootPose = GetHandRootPose(hand);
 
                 handData.RootPose = offsetPose + handRootPose;
                 handData.Joints = GetJointPoses(hand, handRootPose);
+                handData.PointerPose = GetPointerPose(handData.RootPose, handData.Joints);
                 handData.Mesh = HandMeshData.Empty;
             }
 
@@ -425,11 +433,23 @@ namespace XRTK.Ultraleap.Providers.Controllers
                         ? MixedRealityToolkit.CameraSystem.MainCameraRig.PlayerCamera.transform
                         : CameraCache.Main.transform;
 
-                    return new MixedRealityPose(cameraTransform.localPosition + cameraTransform.localRotation * desktopModeOffset, Quaternion.identity);
+                    return new MixedRealityPose(cameraTransform.localPosition + cameraTransform.localRotation * desktopModeOffset, cameraTransform.localRotation);
                 case UltraleapOperationMode.HeadsetMounted:
                 default:
                     return MixedRealityPose.ZeroIdentity;
             }
+        }
+
+        private MixedRealityPose GetPointerPose(MixedRealityPose handRootPose, MixedRealityPose[] jointPoses)
+        {
+            var cameraTransform = MixedRealityToolkit.CameraSystem != null
+                        ? MixedRealityToolkit.CameraSystem.MainCameraRig.PlayerCamera.transform
+                        : CameraCache.Main.transform;
+            var shoulderYaw = Quaternion.Euler(0f, cameraTransform.rotation.eulerAngles.y, 0f);
+            var projectionOrigin = handRootPose.Position + cameraTransform.position + shoulderYaw * new Vector3(.15f, -.13f, .05f);
+            var projectionDirection = jointPoses[(int)TrackedHandJoint.IndexProximal].Position - projectionOrigin;
+
+            return new MixedRealityPose(handRootPose.Position + jointPoses[(int)TrackedHandJoint.IndexProximal].Position, Quaternion.LookRotation(handRootPose.Up, projectionDirection));
         }
     }
 }

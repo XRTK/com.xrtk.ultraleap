@@ -17,7 +17,11 @@ namespace XRTK.Ultraleap.Editor.Inspectors
     public class UltraleapHandControllerDataProviderProfileInspector : BaseMixedRealityHandControllerDataProviderProfileInspector
     {
         private SerializedProperty operationMode;
-        private SerializedProperty leapControllerDesktopModeOffset;
+        private SerializedProperty leapControllerOffset;
+        private SerializedProperty deviceOffsetMode;
+        private SerializedProperty deviceOffsetYAxis;
+        private SerializedProperty deviceOffsetZAxis;
+        private SerializedProperty deviceTiltXAxis;
 
         private bool showUltraleapHandTrackingSettings = true;
         private static readonly GUIContent ultraleapSettingsFoldoutHeader = new GUIContent("Ultraleap Hand Tracking Settings");
@@ -26,7 +30,11 @@ namespace XRTK.Ultraleap.Editor.Inspectors
         {
             base.OnEnable();
             operationMode = serializedObject.FindProperty(nameof(operationMode));
-            leapControllerDesktopModeOffset = serializedObject.FindProperty(nameof(leapControllerDesktopModeOffset));
+            leapControllerOffset = serializedObject.FindProperty(nameof(leapControllerOffset));
+            deviceOffsetMode = serializedObject.FindProperty(nameof(deviceOffsetMode));
+            deviceOffsetYAxis = serializedObject.FindProperty(nameof(deviceOffsetYAxis));
+            deviceOffsetZAxis = serializedObject.FindProperty(nameof(deviceOffsetZAxis));
+            deviceTiltXAxis = serializedObject.FindProperty(nameof(deviceTiltXAxis));
         }
 
         public override void OnInspectorGUI()
@@ -43,15 +51,27 @@ namespace XRTK.Ultraleap.Editor.Inspectors
 
                 EditorGUILayout.PropertyField(operationMode);
 
-                bool deskModeDisabled = (UltraleapOperationMode)operationMode.intValue != UltraleapOperationMode.Desktop;
-                using (new EditorGUI.DisabledScope(deskModeDisabled))
+                var configuredOperationMode = (UltraleapOperationMode)operationMode.intValue;
+                switch (configuredOperationMode)
                 {
-                    EditorGUILayout.PropertyField(leapControllerDesktopModeOffset);
-                }
-
-                if (deskModeDisabled)
-                {
-                    EditorGUILayout.HelpBox("Controller offset is only applied when in desktop mode.", MessageType.Info);
+                    case UltraleapOperationMode.Desktop:
+                        EditorGUILayout.PropertyField(leapControllerOffset);
+                        break;
+                    case UltraleapOperationMode.HeadsetMounted:
+                        EditorGUILayout.PropertyField(deviceOffsetMode);
+                        var configuredOffsetMode = (UltraleapDeviceOffsetMode)deviceOffsetMode.intValue;
+                        switch (configuredOffsetMode)
+                        {
+                            case UltraleapDeviceOffsetMode.Manual:
+                                EditorGUILayout.PropertyField(deviceOffsetYAxis);
+                                EditorGUILayout.PropertyField(deviceOffsetZAxis);
+                                EditorGUILayout.PropertyField(deviceTiltXAxis);
+                                break;
+                            case UltraleapDeviceOffsetMode.Default:
+                            default:
+                                break;
+                        }
+                        break;
                 }
 
                 EditorGUI.indentLevel--;
