@@ -89,6 +89,16 @@ namespace XRTK.Ultraleap.Providers.Controllers
 
             leapController.FrameReady += LeapController_FrameReady;
 
+            switch (OperationMode)
+            {
+                case UltraleapOperationMode.Desktop:
+                    leapController.SetPolicy(Controller.PolicyFlag.POLICY_DEFAULT);
+                    break;
+                case UltraleapOperationMode.HeadsetMounted:
+                    leapController.SetPolicy(Controller.PolicyFlag.POLICY_OPTIMIZE_HMD);
+                    break;
+            }
+
             if (rootConversionProxy.IsNull())
             {
                 rootConversionProxy = new GameObject("Ultraleap Hand Root Conversion Proxy");
