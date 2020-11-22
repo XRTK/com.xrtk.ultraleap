@@ -305,7 +305,7 @@ namespace XRTK.Ultraleap.Providers.Controllers
 
             if (handData.TrackingState == TrackingState.Tracked)
             {
-                var offsetPose = GetHandOffsetPose(OperationMode, LeapControllerOffset);
+                var offsetPose = GetHandOffsetPose();
                 var handRootPose = GetHandRootPose(hand);
 
                 handData.RootPose = offsetPose + handRootPose;
@@ -463,19 +463,17 @@ namespace XRTK.Ultraleap.Providers.Controllers
         /// The offset depends on the device's current <see cref="UltraleapOperationMode"/> which can be
         /// configured in the <see cref="UltraleapHandControllerDataProviderProfile"/>.
         /// </summary>
-        /// <param name="operationMode">The device's current <see cref="UltraleapOperationMode"/>.</param>
-        /// <param name="desktopModeOffset">The offset to apply when in <see cref="UltraleapOperationMode.Desktop"/>.</param>
         /// <returns>Offset <see cref="MixedRealityPose"/>.</returns>
-        private MixedRealityPose GetHandOffsetPose(UltraleapOperationMode operationMode, Vector3 desktopModeOffset)
+        private MixedRealityPose GetHandOffsetPose()
         {
-            switch (operationMode)
+            switch (OperationMode)
             {
                 case UltraleapOperationMode.Desktop:
                     var cameraTransform = MixedRealityToolkit.CameraSystem != null
                         ? MixedRealityToolkit.CameraSystem.MainCameraRig.PlayerCamera.transform
                         : CameraCache.Main.transform;
 
-                    return new MixedRealityPose(cameraTransform.localPosition + cameraTransform.localRotation * desktopModeOffset, cameraTransform.localRotation);
+                    return new MixedRealityPose(cameraTransform.localPosition + cameraTransform.localRotation * LeapControllerOffset, cameraTransform.localRotation);
                 case UltraleapOperationMode.HeadsetMounted:
                 default:
                     return MixedRealityPose.ZeroIdentity;
