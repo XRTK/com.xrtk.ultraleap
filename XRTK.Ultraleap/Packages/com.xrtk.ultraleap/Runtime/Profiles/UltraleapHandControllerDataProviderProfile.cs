@@ -34,11 +34,11 @@ namespace XRTK.Ultraleap.Profiles
         public Vector3 LeapControllerOffset => leapControllerOffset;
 
         [SerializeField]
-        [Tooltip("Applies only to UltraleapOperationMode.HeadsetMounted. Allows to specify the physical position and orientation on a monuted device.")]
+        [Tooltip("Applies only to UltraleapOperationMode.HeadsetMounted. Allows to specify the physical position and orientation on a mounted device.")]
         private UltraleapDeviceOffsetMode deviceOffsetMode = UltraleapDeviceOffsetMode.Default;
 
         /// <summary>
-        /// Applies only to UltraleapOperationMode.HeadsetMounted. Allows to specify the physical position and orientation on a monuted device.
+        /// Applies only to <see cref="UltraleapOperationMode.HeadsetMounted"/>. Allows to specify the physical position and orientation on a mounted device.
         /// </summary>
         public UltraleapDeviceOffsetMode DeviceOffsetMode => deviceOffsetMode;
 

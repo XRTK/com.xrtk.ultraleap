@@ -82,6 +82,10 @@ namespace XRTK.Ultraleap.Providers.Controllers
         /// </summary>
         private Vector3 LeapControllerOffset { get; }
 
+        /// <summary>
+        /// Applies only to <see cref="UltraleapOperationMode.HeadsetMounted"/>.
+        /// Gets how to specify the physical position and orientation on a mounted device.
+        /// </summary>
         private UltraleapDeviceOffsetMode DeviceOffsetMode { get; }
 
         /// <summary>
