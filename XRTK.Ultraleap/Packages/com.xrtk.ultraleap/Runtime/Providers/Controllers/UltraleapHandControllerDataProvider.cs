@@ -36,6 +36,11 @@ namespace XRTK.Ultraleap.Providers.Controllers
         {
             OperationMode = profile.OperationMode;
             LeapControllerOffset = profile.LeapControllerOffset;
+            DeviceOffsetMode = profile.DeviceOffsetMode;
+            DeviceTiltXAxis = profile.DeviceTiltXAxis;
+            DeviceOffsetYAxis = profile.DeviceOffsetYAxis;
+            DeviceOffsetZAxis = profile.DeviceOffsetZAxis;
+
             postProcessor = new HandDataPostProcessor(TrackedPoses)
             {
                 PlatformProvidesPointerPose = true
@@ -76,6 +81,23 @@ namespace XRTK.Ultraleap.Providers.Controllers
         /// this is mostly used to have the hands appear in front of the camera.
         /// </summary>
         private Vector3 LeapControllerOffset { get; }
+
+        private UltraleapDeviceOffsetMode DeviceOffsetMode { get; }
+
+        /// <summary>
+        /// Gets the Ultraleap device's virtual X axis tilt.
+        /// </summary>
+        private float DeviceTiltXAxis { get; }
+
+        /// <summary>
+        /// Gets the Ultraleap device's virtual height offset from the tracked headset position.
+        /// </summary>
+        private float DeviceOffsetYAxis { get; }
+
+        /// <summary>
+        /// Gets the Ultraleap device's virtual depth offset from the tracked headset position.
+        /// </summary>
+        private float DeviceOffsetZAxis { get; }
 
         /// <inheritdoc />
         public override void Enable()
