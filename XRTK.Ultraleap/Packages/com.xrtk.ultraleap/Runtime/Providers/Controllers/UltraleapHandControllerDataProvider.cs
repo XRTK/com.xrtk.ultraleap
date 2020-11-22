@@ -127,10 +127,14 @@ namespace XRTK.Ultraleap.Providers.Controllers
 
             if (rootConversionProxy.IsNull())
             {
+                // We use a one conversion proxy for a hand's root position for either hand.
+                // And we use one conversion proxy for any joint. These proxies are used
+                // to transform hand/joint poses in coordinate spaces and so we're able to make
+                // use of Unity's transform APIs. Most likely these proxies could be avoided if I
+                // wasn't so bad at math.
                 rootConversionProxy = new GameObject("Ultraleap Hand Root Conversion Proxy");
                 rootConversionProxy.transform.SetParent(MixedRealityToolkit.CameraSystem.MainCameraRig.PlayspaceTransform);
                 rootConversionProxy.SetActive(false);
-
                 jointConversionProxy = new GameObject("Ultraleap Hand Joint Conversion Proxy");
                 jointConversionProxy.transform.SetParent(rootConversionProxy.transform);
                 jointConversionProxy.SetActive(false);
@@ -161,14 +165,14 @@ namespace XRTK.Ultraleap.Providers.Controllers
             }
         }
 
-        #region Leap Controller Event Handlers
+        #region Controller Instance Management
 
         private void LeapController_FrameReady(object sender, Leap.FrameEventArgs e)
         {
             bool isLeftHandTracked = false;
             bool isRightHandTracked = false;
 
-            Leap.Frame frame = e.frame;
+            Frame frame = e.frame;
             for (int i = 0; i < frame.Hands.Count; i++)
             {
                 var hand = frame.Hands[i];
@@ -177,7 +181,6 @@ namespace XRTK.Ultraleap.Providers.Controllers
                 {
                     isLeftHandTracked = true;
 
-
                     var controller = GetOrAddController(Handedness.Left, hand.Id);
                     leftHandData = postProcessor.PostProcess(Handedness.Left, leftHandData);
                     controller?.UpdateController(leftHandData);
@@ -185,6 +188,7 @@ namespace XRTK.Ultraleap.Providers.Controllers
                 else if (hand.IsRight && VerifyHandId(Handedness.Right, hand.Id) && TryGetHandData(hand, out var rightHandData))
                 {
                     isRightHandTracked = true;
+
                     var controller = GetOrAddController(Handedness.Right, hand.Id);
                     rightHandData = postProcessor.PostProcess(Handedness.Right, rightHandData);
                     controller?.UpdateController(rightHandData);
@@ -201,8 +205,6 @@ namespace XRTK.Ultraleap.Providers.Controllers
                 RemoveController(Handedness.Right);
             }
         }
-
-        #endregion Leap Controller Event Handlers
 
         private bool TryGetController(Handedness handedness, out MixedRealityHandController controller)
         {
@@ -276,6 +278,10 @@ namespace XRTK.Ultraleap.Providers.Controllers
             // a new controller for the provided ID.
             return true;
         }
+
+        #endregion Controller Instance Management
+
+        #region Hand Data Conversion
 
         /// <summary>
         /// Transforms platform provided hand tracking information to agnostic <see cref="HandData"/>.
@@ -487,5 +493,7 @@ namespace XRTK.Ultraleap.Providers.Controllers
 
             return new MixedRealityPose(handRootPose.Position + jointPoses[(int)TrackedHandJoint.IndexProximal].Position, Quaternion.LookRotation(handRootPose.Up, projectionDirection));
         }
+
+        #endregion Hand Data Conversion
     }
 }
