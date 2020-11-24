@@ -38,10 +38,9 @@ namespace XRTK.Ultraleap.Editor
 
         static UltraleapPluginUtility()
         {
-            if (!Directory.Exists(PluginPath) || EditorPreferences.Get($"Reimport_{nameof(UltraleapPluginUtility)}", false))
+            if (!Directory.Exists(PluginPath) ||
+                EditorPreferences.Get($"Reimport_{nameof(UltraleapPluginUtility)}", true))
             {
-                EditorPreferences.Set($"Reimport_{nameof(UltraleapPluginUtility)}", false);
-
                 Debug.Assert(Directory.Exists(NativeRootPath), "Submodule not found! Did you make sure to recursively checkout this branch?");
 
                 if (Directory.Exists(PluginPath))
@@ -85,11 +84,13 @@ namespace XRTK.Ultraleap.Editor
                 File.Copy($"{NativePluginPath}/LeapCSharp/LeapMotion.LeapCSharp.asmdef", $"{PluginPath}/LeapCSharp/LeapMotion.LeapCSharp.asmdef");
 
                 EditorApplication.delayCall += () => AssetDatabase.Refresh(ImportAssetOptions.ForceUpdate);
-                return;
             }
 
-            if (Directory.Exists(PluginPath))
+            if (Directory.Exists(PluginPath) &&
+                EditorPreferences.Get($"Reimport_{nameof(UltraleapPluginUtility)}", false))
             {
+                EditorPreferences.Set($"Reimport_{nameof(UltraleapPluginUtility)}", false);
+
                 var rootPluginPath = $"{RootPath}/Runtime/Plugins";
 
                 var x86Path = $"{rootPluginPath}/x86/{LEAP_API}";
