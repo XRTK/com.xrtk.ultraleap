@@ -85,6 +85,7 @@ namespace XRTK.Ultraleap.Editor
                 File.Copy($"{NativePluginPath}/LeapCSharp/LeapMotion.LeapCSharp.asmdef", $"{PluginPath}/LeapCSharp/LeapMotion.LeapCSharp.asmdef");
 
                 EditorApplication.delayCall += () => AssetDatabase.Refresh(ImportAssetOptions.ForceUpdate);
+                return;
             }
 
             if (Directory.Exists(PluginPath))
@@ -92,6 +93,7 @@ namespace XRTK.Ultraleap.Editor
                 var rootPluginPath = $"{RootPath}/Runtime/Plugins";
 
                 var x86Path = $"{rootPluginPath}/x86/{LEAP_API}";
+                Debug.Assert(File.Exists(x86Path), $"Library not found at {x86Path}");
                 var x86Importer = AssetImporter.GetAtPath(x86Path) as PluginImporter;
                 Debug.Assert(x86Importer != null, $"Failed to load {x86Path}");
                 x86Importer.ClearSettings();
@@ -106,6 +108,7 @@ namespace XRTK.Ultraleap.Editor
                 x86Importer.SaveAndReimport();
 
                 var x64Path = $"{rootPluginPath}/x86_64/{LEAP_API}";
+                Debug.Assert(File.Exists(x64Path), $"Library not found at {x64Path}");
                 var x64Importer = AssetImporter.GetAtPath(x64Path) as PluginImporter;
                 Debug.Assert(x64Importer != null, $"Failed to load {x64Path}");
                 x64Importer.ClearSettings();
