@@ -21,6 +21,29 @@ namespace XRTK.Ultraleap.Editor
             {
                 EditorPreferences.Set($"{nameof(UltraleapPackageInstaller)}", PackageInstaller.TryInstallAssets(HiddenPath, DefaultPath));
             }
+
+            EditorApplication.delayCall += CheckPackage;
+        }
+
+        [MenuItem("Mixed Reality Toolkit/Packages/Install Ultraleap Package Assets...", true)]
+        private static bool ImportPackageAssetsValidation()
+        {
+            return !Directory.Exists($"{DefaultPath}\\Profiles");
+        }
+
+        [MenuItem("Mixed Reality Toolkit/Packages/Install Ultraleap Package Assets...")]
+        private static void ImportPackageAssets()
+        {
+            EditorPreferences.Set($"{nameof(UltraleapPackageInstaller)}.Profiles", false);
+            EditorApplication.delayCall += CheckPackage;
+        }
+
+        private static void CheckPackage()
+        {
+            if (!EditorPreferences.Get($"{nameof(UltraleapPackageInstaller)}.Profiles", false))
+            {
+                EditorPreferences.Set($"{nameof(UltraleapPackageInstaller)}.Profiles", PackageInstaller.TryInstallAssets(HiddenPath, $"{DefaultPath}\\Profiles"));
+            }
         }
     }
 }
