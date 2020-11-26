@@ -1,8 +1,6 @@
 // Copyright (c) XRTK. All rights reserved.
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 
-using System.Security.Cryptography;
-
 namespace XRTK.Definitions.Platforms
 {
     /// <summary>
@@ -12,7 +10,7 @@ namespace XRTK.Definitions.Platforms
     public class UltraleapPlatform : BasePlatform
     {
         /// <inheritdoc />
-        public override bool IsAvailable => IsUltraleapServiceAccessible();
+        public override bool IsAvailable => IsUltraleapServiceAvailable();
 
         /// <inheritdoc />
         public override bool IsBuildTargetAvailable
@@ -23,39 +21,16 @@ namespace XRTK.Definitions.Platforms
                 return UnityEditor.EditorUserBuildSettings.activeBuildTarget == UnityEditor.BuildTarget.StandaloneWindows ||
                        UnityEditor.EditorUserBuildSettings.activeBuildTarget == UnityEditor.BuildTarget.StandaloneWindows64 ||
                        UnityEditor.EditorUserBuildSettings.activeBuildTarget == UnityEditor.BuildTarget.StandaloneOSX ||
-                       UnityEditor.EditorUserBuildSettings.activeBuildTarget == UnityEditor.BuildTarget.StandaloneLinux ||
-                       UnityEditor.EditorUserBuildSettings.activeBuildTarget == UnityEditor.BuildTarget.StandaloneLinux64 ||
-                       UnityEditor.EditorUserBuildSettings.activeBuildTarget == UnityEditor.BuildTarget.StandaloneLinuxUniversal;
+                       UnityEditor.EditorUserBuildSettings.activeBuildTarget == UnityEditor.BuildTarget.StandaloneLinux64;
 #else
                 return false;
 #endif
             }
         }
 
-        private bool IsUltraleapServiceAccessible()
+        private bool IsUltraleapServiceAvailable()
         {
             var serviceIsAccessible = false;
-
-#if UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
-            System.Diagnostics.Process process = new System.Diagnostics.Process();
-            process.StartInfo.FileName = "cmd.exe";
-            process.StartInfo.RedirectStandardInput = true;
-            process.StartInfo.RedirectStandardOutput = true;
-            process.StartInfo.CreateNoWindow = true;
-            process.StartInfo.UseShellExecute = false;
-            process.Start();
-
-            process.StandardInput.WriteLine("sc query LeapService");
-            process.StandardInput.Flush();
-            process.StandardInput.Close();
-            process.WaitForExit();
-
-            var result = process.StandardOutput.ReadToEnd();
-            if (!string.IsNullOrWhiteSpace(result))
-            {
-                serviceIsAccessible = result.Contains("4  RUNNING");
-            }
-#endif
 
             return serviceIsAccessible;
         }
