@@ -25,6 +25,15 @@ namespace XRTK.Ultraleap.Profiles
         public UltraleapOperationMode OperationMode => operationMode;
 
         [SerializeField]
+        [Tooltip("Sets the frame optimization mode for the provider. When enabled, only one leap frame instead of two will be calculated.")]
+        private UltraleapFrameOptimizationMode frameOptimizationMode = UltraleapFrameOptimizationMode.None;
+
+        /// <summary>
+        /// Gets the frame optimization mode for the provider. When enabled, only one leap frame instead of two will be calculated.
+        /// </summary>
+        public UltraleapFrameOptimizationMode FrameOptimizationMode => frameOptimizationMode;
+
+        [SerializeField]
         [Tooltip("Applies only to UltraleapOperationMode.Desktop. Adds an offset to the recognized hand root position relative to the main camera, so hands are visible.")]
         private Vector3 leapControllerOffset = new Vector3(0, -0.2f, 0.3f);
 
