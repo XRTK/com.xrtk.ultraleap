@@ -12,22 +12,11 @@ namespace XRTK.Ultraleap.Extensions
     public static class QuaternionExtensions
     {
         /// <summary>
-        /// Converts a <see cref="Leap.LeapQuaternion"/> object to a <see cref="Quaternion"/> object and transforms
-        /// it to Unity's left handed coordinate system.
+        /// Converts a <see cref="LeapQuaternion"/> object to a UnityEngine <see cref="Quaternion"/> object.
         /// </summary>
-        /// <param name="vector">The <see cref="Leap.LeapQuaternion"/> to convert.</param>
-        /// <returns>A <see cref="Quaternion"/> in Unity's left-handed coordinate system.</returns>
-        public static Quaternion ToLeftHandedUnityQuaternion(this Leap.LeapQuaternion q)
-        {
-            var quaternion = new Quaternion(q.x, q.y, q.z, q.w);
-            var euler = quaternion.eulerAngles;
-
-            // Mirror on Z.
-            euler.x = -euler.x;
-            euler.y = -euler.y;
-
-            return Quaternion.Euler(euler);
-        }
+        /// <param name="q">The <see cref="LeapQuaternion"/> to convert.</param>
+        /// <returns></returns>
+        public static Quaternion ToQuaternion(this LeapQuaternion q) => new Quaternion(q.x, q.y, q.z, q.w);
 
         /// <summary>
         /// Converts a <see cref="Quaternion"/> object to a <see cref="LeapQuaternion"/> object.
