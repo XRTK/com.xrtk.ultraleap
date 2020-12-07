@@ -78,9 +78,7 @@ namespace XRTK.Ultraleap.Providers.Controllers
         private int framesSinceServiceConnectionChecked = 0;
         private int numberOfReconnectionAttempts = 0;
 
-        private GameObject originConversionProxy;
-        private GameObject handRootConversionProxy;
-        private GameObject jointConversionProxy;
+        private GameObject trackingOriginConversionProxy;
 
         /// <summary>
         /// Gets the ultraleap controller's current operation mode.
@@ -129,38 +127,6 @@ namespace XRTK.Ultraleap.Providers.Controllers
         /// </summary>
         private float DeviceOffsetZAxis { get; }
 
-        /// <summary>
-        /// The current leap frame available.
-        /// </summary>
-        private Frame CurrentFrame
-        {
-            get
-            {
-                if (FrameOptimizationMode == UltraleapFrameOptimizationMode.ReusePhysicsForUpdate)
-                {
-                    return transformedFixedFrame;
-                }
-
-                return transformedUpdateFrame;
-            }
-        }
-
-        /// <summary>
-        /// The current leap fixed frame available.
-        /// </summary>
-        private Frame CurrentFixedFrame
-        {
-            get
-            {
-                if (FrameOptimizationMode == UltraleapFrameOptimizationMode.ReusePhysicsForUpdate)
-                {
-                    return transformedUpdateFrame;
-                }
-
-                return transformedFixedFrame;
-            }
-        }
-
         #region Mixed Reality Service Lifecycle
 
         /// <inheritdoc />
@@ -175,22 +141,11 @@ namespace XRTK.Ultraleap.Providers.Controllers
             untransformedUpdateFrame = new Frame();
             transformedUpdateFrame = new Frame();
 
-            if (originConversionProxy.IsNull())
+            if (trackingOriginConversionProxy.IsNull())
             {
-                // We use a one conversion proxy for a hand's root position for either hand.
-                // And we use one conversion proxy for any joint. These proxies are used
-                // to transform hand/joint poses in coordinate spaces and so we're able to make
-                // use of Unity's transform APIs. Most likely these proxies could be avoided if I
-                // wasn't so bad at math.
-                originConversionProxy = new GameObject("Ultraleap Origin Conversion Proxy");
-                originConversionProxy.transform.SetParent(MixedRealityToolkit.CameraSystem.MainCameraRig.PlayspaceTransform);
-                originConversionProxy.SetActive(false);
-                handRootConversionProxy = new GameObject("Ultraleap Hand Root Conversion Proxy");
-                handRootConversionProxy.transform.SetParent(originConversionProxy.transform);
-                handRootConversionProxy.SetActive(false);
-                jointConversionProxy = new GameObject("Ultraleap Hand Joint Conversion Proxy");
-                jointConversionProxy.transform.SetParent(originConversionProxy.transform);
-                jointConversionProxy.SetActive(false);
+                trackingOriginConversionProxy = new GameObject("Ultraleap Tracking Origin Conversion Proxy");
+                trackingOriginConversionProxy.transform.SetParent(MixedRealityToolkit.CameraSystem.MainCameraRig.PlayspaceTransform);
+                trackingOriginConversionProxy.SetActive(false);
             }
         }
 
@@ -246,9 +201,9 @@ namespace XRTK.Ultraleap.Providers.Controllers
             activeControllers.Clear();
             handIdMap.Clear();
 
-            if (!originConversionProxy.IsNull())
+            if (!trackingOriginConversionProxy.IsNull())
             {
-                originConversionProxy.Destroy();
+                trackingOriginConversionProxy.Destroy();
             }
         }
 
@@ -349,7 +304,49 @@ namespace XRTK.Ultraleap.Providers.Controllers
             return false;
         }
 
-        private void TransformFrame(Frame source, Frame destination) => destination.CopyFrom(source).Transform(originConversionProxy.transform.GetLeapMatrix());
+        private void TransformFrame(Frame source, Frame destination)
+        {
+            UpdateTrackingOrigin();
+            destination.CopyFrom(source).Transform(trackingOriginConversionProxy.transform.GetLeapMatrix());
+        }
+
+        private void UpdateTrackingOrigin()
+        {
+            var deviceOffsetPose = GetCurrentDeviceOffsetPose();
+            var cameraTransform = MixedRealityToolkit.CameraSystem != null
+                        ? MixedRealityToolkit.CameraSystem.MainCameraRig.PlayerCamera.transform
+                        : CameraCache.Main.transform;
+
+            var position = cameraTransform.localPosition + cameraTransform.localRotation * deviceOffsetPose.Position;
+            var rotation = cameraTransform.localRotation * deviceOffsetPose.Rotation;
+
+            trackingOriginConversionProxy.transform.localPosition = position;
+            trackingOriginConversionProxy.transform.localRotation = rotation;
+        }
+
+        private MixedRealityPose GetCurrentDeviceOffsetPose()
+        {
+            switch (OperationMode)
+            {
+                case UltraleapOperationMode.Desktop:
+                    return new MixedRealityPose(LeapControllerOffset, Quaternion.identity);
+                case UltraleapOperationMode.HeadsetMounted:
+                    switch (DeviceOffsetMode)
+                    {
+                        case UltraleapDeviceOffsetMode.Default:
+                            return new MixedRealityPose(
+                                new Vector3(0f, defaultDeviceOffsetYAxis, defaultDeviceOffsetZAxis),
+                                Quaternion.Euler(defaultDeviceTiltXAxis, 0f, 0f));
+                        case UltraleapDeviceOffsetMode.Manual:
+                            return new MixedRealityPose(
+                                new Vector3(0f, DeviceOffsetYAxis, DeviceOffsetZAxis),
+                                Quaternion.Euler(DeviceTiltXAxis, 0f, 0f));
+                    }
+                    break;
+            }
+
+            throw new ArgumentException($"Ultraleap operation mode {OperationMode} with offset mode {DeviceOffsetMode} is not supported!");
+        }
 
         private void FrameReady(Frame frame)
         {
@@ -492,9 +489,8 @@ namespace XRTK.Ultraleap.Providers.Controllers
 
             if (handData.TrackingState == TrackingState.Tracked)
             {
-                var deviceOffsetPose = GetCurrentDeviceOffsetPose();
-                handData.RootPose = GetOriginPose(deviceOffsetPose);
-                handData.Joints = GetJointPoses(hand);
+                handData.RootPose = GetHandRootPose(hand);
+                handData.Joints = GetJointPoses(hand, handData.RootPose);
                 handData.PointerPose = GetPointerPose(handData.RootPose, handData.Joints);
                 handData.Mesh = HandMeshData.Empty;
             }
@@ -502,7 +498,7 @@ namespace XRTK.Ultraleap.Providers.Controllers
             return true;
         }
 
-        private MixedRealityPose[] GetJointPoses(Hand hand)
+        private MixedRealityPose[] GetJointPoses(Hand hand, MixedRealityPose rootPose)
         {
             for (var i = 0; i < HandData.JointCount; i++)
             {
@@ -606,12 +602,9 @@ namespace XRTK.Ultraleap.Providers.Controllers
                         break;
                 }
 
-                jointConversionProxy.transform.localPosition = position;
-                jointConversionProxy.transform.localRotation = rotation;
-
                 jointPoses[i] = new MixedRealityPose(
-                    jointConversionProxy.transform.localPosition,
-                    jointConversionProxy.transform.localRotation);
+                    position - rootPose.Position,
+                    rotation);
             }
 
             // Fill missing joints by estimating their pose.
@@ -633,59 +626,7 @@ namespace XRTK.Ultraleap.Providers.Controllers
             var position = hand.WristPosition.ToVector3();
             var rotation = hand.Arm.Basis.rotation.ToQuaternion();
 
-            handRootConversionProxy.transform.localPosition = position;
-            handRootConversionProxy.transform.localRotation = rotation;
-
-            return new MixedRealityPose(handRootConversionProxy.transform.localPosition, handRootConversionProxy.transform.localRotation);
-        }
-
-        /// <summary>
-        /// Gets the origin <see cref="MixedRealityPose"/> for the current frame. The origin is where the device is located at
-        /// in playspace.
-        /// </summary>
-        /// <param name="deviceOffsetPose">The current device offset <see cref="MixedRealityPose"/> retrieved from <see cref="GetCurrentDeviceOffsetPose"/>.</param>
-        /// <returns>Offset <see cref="MixedRealityPose"/>.</returns>
-        private MixedRealityPose GetOriginPose(MixedRealityPose deviceOffsetPose)
-        {
-            var cameraTransform = MixedRealityToolkit.CameraSystem != null
-                        ? MixedRealityToolkit.CameraSystem.MainCameraRig.PlayerCamera.transform
-                        : CameraCache.Main.transform;
-
-            var position = cameraTransform.localPosition + cameraTransform.localRotation * deviceOffsetPose.Position;
-            var rotation = cameraTransform.localRotation * deviceOffsetPose.Rotation;
-
-            originConversionProxy.transform.localPosition = position;
-            originConversionProxy.transform.localRotation = rotation;
-
-            return new MixedRealityPose(originConversionProxy.transform.localPosition = position, originConversionProxy.transform.localRotation = rotation);
-        }
-
-        /// <summary>
-        /// Gets the device offset as configured in the active <see cref="UltraleapHandControllerDataProviderProfile"/>.
-        /// </summary>
-        /// <returns>Device offset <see cref="MixedRealityPose"/>.</returns>
-        private MixedRealityPose GetCurrentDeviceOffsetPose()
-        {
-            switch (OperationMode)
-            {
-                case UltraleapOperationMode.Desktop:
-                    return new MixedRealityPose(LeapControllerOffset, Quaternion.identity);
-                case UltraleapOperationMode.HeadsetMounted:
-                    switch (DeviceOffsetMode)
-                    {
-                        case UltraleapDeviceOffsetMode.Default:
-                            return new MixedRealityPose(
-                                new Vector3(0f, defaultDeviceOffsetYAxis, defaultDeviceOffsetZAxis),
-                                Quaternion.Euler(defaultDeviceTiltXAxis, 0f, 0f));
-                        case UltraleapDeviceOffsetMode.Manual:
-                            return new MixedRealityPose(
-                                new Vector3(0f, DeviceOffsetYAxis, DeviceOffsetZAxis),
-                                Quaternion.Euler(DeviceTiltXAxis, 0f, 0f));
-                    }
-                    break;
-            }
-
-            throw new ArgumentException($"Ultraleap operation mode {OperationMode} with offset mode {DeviceOffsetMode} is not supported!");
+            return new MixedRealityPose(position, rotation);
         }
 
         private MixedRealityPose GetPointerPose(MixedRealityPose handRootPose, MixedRealityPose[] jointPoses)
