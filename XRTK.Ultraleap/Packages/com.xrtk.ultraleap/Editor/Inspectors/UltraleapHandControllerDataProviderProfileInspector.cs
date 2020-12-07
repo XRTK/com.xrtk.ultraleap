@@ -17,6 +17,8 @@ namespace XRTK.Ultraleap.Editor.Inspectors
     public class UltraleapHandControllerDataProviderProfileInspector : BaseMixedRealityHandControllerDataProviderProfileInspector
     {
         private SerializedProperty operationMode;
+        private SerializedProperty maxReconnectionAttempts;
+        private SerializedProperty reconnectionInterval;
         private SerializedProperty frameOptimizationMode;
         private SerializedProperty leapControllerOffset;
         private SerializedProperty deviceOffsetMode;
@@ -31,6 +33,8 @@ namespace XRTK.Ultraleap.Editor.Inspectors
         {
             base.OnEnable();
             operationMode = serializedObject.FindProperty(nameof(operationMode));
+            maxReconnectionAttempts = serializedObject.FindProperty(nameof(maxReconnectionAttempts));
+            reconnectionInterval = serializedObject.FindProperty(nameof(reconnectionInterval));
             frameOptimizationMode = serializedObject.FindProperty(nameof(frameOptimizationMode));
             leapControllerOffset = serializedObject.FindProperty(nameof(leapControllerOffset));
             deviceOffsetMode = serializedObject.FindProperty(nameof(deviceOffsetMode));
@@ -52,6 +56,8 @@ namespace XRTK.Ultraleap.Editor.Inspectors
                 EditorGUI.indentLevel++;
 
                 EditorGUILayout.PropertyField(operationMode);
+                EditorGUILayout.PropertyField(maxReconnectionAttempts);
+                EditorGUILayout.PropertyField(reconnectionInterval);
                 EditorGUILayout.PropertyField(frameOptimizationMode);
 
                 var configuredOperationMode = (UltraleapOperationMode)operationMode.intValue;

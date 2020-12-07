@@ -25,6 +25,24 @@ namespace XRTK.Ultraleap.Profiles
         public UltraleapOperationMode OperationMode => operationMode;
 
         [SerializeField]
+        [Tooltip("The maximum number of times the provider will attempt to reconnect to the service before giving up.")]
+        private int maxReconnectionAttempts = 5;
+
+        /// <summary>
+        /// The maximum number of times the provider will attempt to reconnect to the service before giving up.
+        /// </summary>
+        public int MaxReconnectionAttempts => maxReconnectionAttempts;
+
+        [SerializeField]
+        [Tooltip("The number of frames to wait between each reconnection attempt.")]
+        private int reconnectionInterval = 180;
+
+        /// <summary>
+        /// The number of frames to wait between each reconnection attempt.
+        /// </summary>
+        public int ReconnectionInterval => reconnectionInterval;
+
+        [SerializeField]
         [Tooltip("Sets the frame optimization mode for the provider. When enabled, only one leap frame instead of two will be calculated.")]
         private UltraleapFrameOptimizationMode frameOptimizationMode = UltraleapFrameOptimizationMode.None;
 
