@@ -2,6 +2,7 @@
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 
 using UnityEngine;
+using Leap;
 
 namespace XRTK.Ultraleap.Extensions
 {
@@ -10,14 +11,11 @@ namespace XRTK.Ultraleap.Extensions
     /// </summary>
     public static class VectorExtensions
     {
-        private const float millimeterToMeterFactor = 1e-3f;
-
         /// <summary>
-        /// Converts a <see cref="Leap.Vector"/> object to a <see cref="Vector3"/> object. The input
-        /// vector is converted to Unity's left-handed coordinate system and coordinates are scaled from millimeters to meters.
+        /// Converts a UnityEngine <see cref="Vector3"/> object to a Leap <see cref="Vector"/> object.
         /// </summary>
-        /// <param name="v">The <see cref="Leap.Vector"/> to convert.</param>
-        /// <returns>A <see cref="Vector3"/>.</returns>
-        public static Vector3 ToLeftHandedUnityVector3(this Leap.Vector v) => millimeterToMeterFactor * new Vector3(v.x, v.y, -v.z);
+        /// <param name="vector">The <see cref="Vector3"/> to convert.</param>
+        /// <returns></returns>
+        public static Vector ToVector(this Vector3 vector) => new Vector(vector.x, vector.y, vector.z);
     }
 }
