@@ -79,6 +79,7 @@ namespace XRTK.Ultraleap.Providers.Controllers
         private int numberOfReconnectionAttempts = 0;
 
         private GameObject trackingOriginConversionProxy;
+        private GameObject handRootConversionProxy;
 
         /// <summary>
         /// Gets the ultraleap controller's current operation mode.
@@ -146,6 +147,9 @@ namespace XRTK.Ultraleap.Providers.Controllers
                 trackingOriginConversionProxy = new GameObject("Ultraleap Tracking Origin Conversion Proxy");
                 trackingOriginConversionProxy.transform.SetParent(MixedRealityToolkit.CameraSystem.MainCameraRig.PlayspaceTransform);
                 trackingOriginConversionProxy.SetActive(false);
+                handRootConversionProxy = new GameObject("Hand Root Conversion Proxy");
+                handRootConversionProxy.transform.SetParent(trackingOriginConversionProxy.transform);
+                handRootConversionProxy.SetActive(false);
             }
         }
 
@@ -204,6 +208,11 @@ namespace XRTK.Ultraleap.Providers.Controllers
             if (!trackingOriginConversionProxy.IsNull())
             {
                 trackingOriginConversionProxy.Destroy();
+            }
+
+            if (!handRootConversionProxy.IsNull())
+            {
+                handRootConversionProxy.Destroy();
             }
         }
 
@@ -490,7 +499,7 @@ namespace XRTK.Ultraleap.Providers.Controllers
             if (handData.TrackingState == TrackingState.Tracked)
             {
                 handData.RootPose = GetHandRootPose(hand);
-                handData.Joints = GetJointPoses(hand, handData.RootPose);
+                handData.Joints = GetJointPoses(hand);
                 handData.PointerPose = GetPointerPose(handData.RootPose, handData.Joints);
                 handData.Mesh = HandMeshData.Empty;
             }
@@ -498,7 +507,7 @@ namespace XRTK.Ultraleap.Providers.Controllers
             return true;
         }
 
-        private MixedRealityPose[] GetJointPoses(Hand hand, MixedRealityPose rootPose)
+        private MixedRealityPose[] GetJointPoses(Hand hand)
         {
             for (var i = 0; i < HandData.JointCount; i++)
             {
@@ -603,8 +612,8 @@ namespace XRTK.Ultraleap.Providers.Controllers
                 }
 
                 jointPoses[i] = new MixedRealityPose(
-                    position - rootPose.Position,
-                    rotation);
+                    handRootConversionProxy.transform.InverseTransformPoint(position),
+                    Quaternion.Inverse(handRootConversionProxy.transform.rotation) * rotation);
             }
 
             // Fill missing joints by estimating their pose.
@@ -623,10 +632,12 @@ namespace XRTK.Ultraleap.Providers.Controllers
         /// <returns>The <see cref="Hand"/>'s root <see cref="MixedRealityPose"/>.</returns>
         private MixedRealityPose GetHandRootPose(Hand hand)
         {
-            var position = hand.WristPosition.ToVector3();
-            var rotation = hand.Arm.Basis.rotation.ToQuaternion();
+            handRootConversionProxy.transform.position = hand.WristPosition.ToVector3();
+            handRootConversionProxy.transform.rotation = hand.Arm.Basis.rotation.ToQuaternion();
 
-            return new MixedRealityPose(position, rotation);
+            return new MixedRealityPose(
+                handRootConversionProxy.transform.position,
+                handRootConversionProxy.transform.rotation);
         }
 
         private MixedRealityPose GetPointerPose(MixedRealityPose handRootPose, MixedRealityPose[] jointPoses)
