@@ -632,12 +632,14 @@ namespace XRTK.Ultraleap.Providers.Controllers
         /// <returns>The <see cref="Hand"/>'s root <see cref="MixedRealityPose"/>.</returns>
         private MixedRealityPose GetHandRootPose(Hand hand)
         {
+            var playspaceTransform = MixedRealityToolkit.CameraSystem.MainCameraRig.PlayspaceTransform;
+
             handRootConversionProxy.transform.position = hand.WristPosition.ToVector3();
             handRootConversionProxy.transform.rotation = hand.Arm.Basis.rotation.ToQuaternion();
 
             return new MixedRealityPose(
-                handRootConversionProxy.transform.position,
-                handRootConversionProxy.transform.rotation);
+                playspaceTransform.InverseTransformPoint(handRootConversionProxy.transform.position),
+                Quaternion.Inverse(playspaceTransform.rotation) * handRootConversionProxy.transform.rotation);
         }
 
         private MixedRealityPose GetPointerPose(MixedRealityPose handRootPose, MixedRealityPose[] jointPoses)
