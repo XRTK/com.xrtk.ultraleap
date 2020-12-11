@@ -507,6 +507,11 @@ namespace XRTK.Ultraleap.Providers.Controllers
             return true;
         }
 
+        /// <summary>
+        /// Computes each joint pose for the given hand relative to the hand's root pose.
+        /// </summary>
+        /// <param name="hand">The <see cref="Hand"/> tracking data provided by the platform.</param>
+        /// <returns>Joint <see cref="MixedRealityPose"/>s.</returns>
         private MixedRealityPose[] GetJointPoses(Hand hand)
         {
             for (var i = 0; i < HandData.JointCount; i++)
@@ -647,11 +652,16 @@ namespace XRTK.Ultraleap.Providers.Controllers
             var cameraTransform = MixedRealityToolkit.CameraSystem != null
                         ? MixedRealityToolkit.CameraSystem.MainCameraRig.PlayerCamera.transform
                         : CameraCache.Main.transform;
-            var shoulderYaw = Quaternion.Euler(0f, cameraTransform.rotation.eulerAngles.y, 0f);
-            var projectionOrigin = handRootPose.Position + cameraTransform.position + shoulderYaw * new Vector3(.15f, -.13f, .05f);
-            var projectionDirection = jointPoses[(int)TrackedHandJoint.IndexProximal].Position - projectionOrigin;
 
-            return new MixedRealityPose(handRootPose.Position + jointPoses[(int)TrackedHandJoint.IndexProximal].Position, Quaternion.LookRotation(handRootPose.Up, projectionDirection));
+            var thumbProximalPose = jointPoses[(int)TrackedHandJoint.ThumbProximal];
+            var indexDistalPose = jointPoses[(int)TrackedHandJoint.IndexDistal];
+            var pointerPosition = handRootPose.Position +
+                handRootPose.Rotation * thumbProximalPose.Position +
+                (indexDistalPose.Position - thumbProximalPose.Position) * .5f;
+
+            return new MixedRealityPose(pointerPosition, Quaternion.LookRotation(
+                cameraTransform.rotation * trackingOriginConversionProxy.transform.forward,
+                handRootPose.Up));
         }
 
         #endregion Hand Data Conversion
