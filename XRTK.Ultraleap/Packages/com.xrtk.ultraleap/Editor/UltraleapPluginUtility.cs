@@ -38,6 +38,8 @@ namespace XRTK.Ultraleap.Editor
 
         static UltraleapPluginUtility()
         {
+            Debug.LogWarning($"{nameof(UltraleapPluginUtility)}");
+
             Debug.Assert(Directory.Exists(NativeRootPath), "Submodule not found! Did you make sure to recursively checkout this branch?");
 
             if (EditorPreferences.Get($"Reimport_{nameof(UltraleapPluginUtility)}", true))
