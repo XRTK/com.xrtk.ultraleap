@@ -38,8 +38,6 @@ namespace XRTK.Ultraleap.Editor
 
         static UltraleapPluginUtility()
         {
-            Debug.LogWarning($"{nameof(UltraleapPluginUtility)}");
-
             Debug.Assert(Directory.Exists(NativeRootPath), "Submodule not found! Did you make sure to recursively checkout this branch?");
 
             if (EditorPreferences.Get($"Reimport_{nameof(UltraleapPluginUtility)}", true))
@@ -66,8 +64,6 @@ namespace XRTK.Ultraleap.Editor
 
         private static void DeleteSupportLibraries()
         {
-            Debug.LogWarning($"{nameof(DeleteSupportLibraries)}");
-
             if (Directory.Exists(PluginPath))
             {
                 var files = Directory.GetFiles(PluginPath, "*", SearchOption.AllDirectories);
@@ -90,8 +86,6 @@ namespace XRTK.Ultraleap.Editor
 
         private static void CopySupportLibraries()
         {
-            Debug.LogWarning($"{nameof(CopySupportLibraries)}");
-
             Directory.CreateDirectory(PluginPath);
 
             var directories = Directory.GetDirectories(NativePluginPath, "*", SearchOption.AllDirectories);
@@ -117,8 +111,6 @@ namespace XRTK.Ultraleap.Editor
 
         private static void SetPluginMeta()
         {
-            Debug.LogWarning($"{nameof(SetPluginMeta)}");
-
             var rootPluginPath = $"{RootPath}/Runtime/Plugins";
 
             var x86Path = $"{rootPluginPath}/x86/{LEAP_API}";
