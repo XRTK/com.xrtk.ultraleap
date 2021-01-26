@@ -106,6 +106,7 @@ namespace XRTK.Ultraleap.Editor
             File.Copy($"{NativeRootPath}/readme.txt", $"{PluginPath}/license.txt");
             File.Copy($"{NativeRootPath}/Version.txt", $"{PluginPath}/Version.txt");
             File.Copy($"{NativePluginPath}/LeapCSharp/LeapMotion.LeapCSharp.asmdef", $"{PluginPath}/LeapCSharp/LeapMotion.LeapCSharp.asmdef");
+            File.Copy($"{NativePluginPath}/LeapCSharp/LeapMotion.LeapCSharp.asmdef.meta", $"{PluginPath}/LeapCSharp/LeapMotion.LeapCSharp.asmdef.meta");
         }
 
         private static void SetPluginMeta()

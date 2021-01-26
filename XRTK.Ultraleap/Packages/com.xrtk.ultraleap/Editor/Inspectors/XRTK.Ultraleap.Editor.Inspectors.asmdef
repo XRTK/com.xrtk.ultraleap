@@ -1,12 +1,12 @@
 {
-    "name": "XRTK.Ultraleap.Editor",
+    "name": "XRTK.Ultraleap.Editor.Inspectors",
     "references": [
         "GUID:f3241d040533491e8a1e2714b27c3111",
-        "GUID:e67d30660ec243e4836aac191d3f36fb"
+        "GUID:e67d30660ec243e4836aac191d3f36fb",
+        "GUID:a139cf01c9b59104bb6d639b36796d1a",
+        "GUID:810a2d50e6df2d14da0a9b5f0953d439"
     ],
-    "includePlatforms": [
-        "Editor"
-    ],
+    "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,
     "overrideReferences": false,
