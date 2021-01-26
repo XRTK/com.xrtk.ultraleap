@@ -140,7 +140,7 @@ namespace XRTK.Ultraleap.Editor
             x64Importer.SetCompatibleWithPlatform(BuildTarget.StandaloneWindows64, true);
             x64Importer.SetPlatformData(BuildTarget.StandaloneWindows64, "CPU", "x86_64");
             x64Importer.SetCompatibleWithPlatform(BuildTarget.WSAPlayer, true);
-            x64Importer.SetPlatformData(BuildTarget.WSAPlayer, "CPU", "x86_64");
+            x64Importer.SetPlatformData(BuildTarget.WSAPlayer, "CPU", "X64");
             x64Importer.SaveAndReimport();
         }
 
