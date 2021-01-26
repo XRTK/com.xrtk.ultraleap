@@ -44,7 +44,12 @@ namespace XRTK.Ultraleap.Providers.Controllers
             MaxReconnectionAttempts = profile.MaxReconnectionAttempts;
             ReconnectionInterval = profile.ReconnectionInterval;
 
-            postProcessor = new HandDataPostProcessor(TrackedPoses)
+            var globalSettingsProfile = MixedRealityToolkit.Instance.ActiveProfile.InputSystemProfile;
+            var isGrippingThreshold = profile.GripThreshold != globalSettingsProfile.GripThreshold
+                ? profile.GripThreshold
+                : globalSettingsProfile.GripThreshold;
+
+            postProcessor = new HandDataPostProcessor(TrackedPoses, isGrippingThreshold)
             {
                 PlatformProvidesPointerPose = true
             };

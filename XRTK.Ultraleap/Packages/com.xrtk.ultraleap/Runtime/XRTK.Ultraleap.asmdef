@@ -2,9 +2,8 @@
     "name": "XRTK.Ultraleap",
     "references": [
         "GUID:f3241d040533491e8a1e2714b27c3111",
-        "GUID:2a85f868b11782840bba5fb8b628db84"
+        "GUID:46513b69f5c704c458a00c6f85855fa5"
     ],
-    "optionalUnityReferences": [],
     "includePlatforms": [
         "Editor",
         "WSA",
@@ -17,5 +16,6 @@
     "precompiledReferences": [],
     "autoReferenced": true,
     "defineConstraints": [],
-    "versionDefines": []
+    "versionDefines": [],
+    "noEngineReferences": false
 }
