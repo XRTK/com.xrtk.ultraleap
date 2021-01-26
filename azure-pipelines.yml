@@ -33,14 +33,12 @@ pr:
   paths:
     include:
     - azure-pipelines.yml
-    - azure_pipelines/*
     - XRTK.Ultraleap/*
     - Submodules/*
     exclude:
       - '*'
       - XRTK.Ultraleap/Packages/com.xrtk.ultraleap/README.md
       - XRTK.Ultraleap/Packages/com.xrtk.ultraleap/LICENSE.md
-      - XRTK.Ultraleap/Packages/com.xrtk.ultraleap/.github/*
 
 trigger:
   batch: true
@@ -50,14 +48,12 @@ trigger:
   paths:
     include:
       - azure-pipelines.yml
-      - azure_pipelines/*
       - XRTK.Ultraleap/*
       - Submodules/*
     exclude:
       - '*'
       - XRTK.Ultraleap/Packages/com.xrtk.ultraleap/README.md
       - XRTK.Ultraleap/Packages/com.xrtk.ultraleap/LICENSE.md
-      - XRTK.Ultraleap/Packages/com.xrtk.ultraleap/.github/*
 
 extends:
   template: common.yml@pipeline_repo
@@ -67,7 +63,5 @@ extends:
     # TODO: Only use XRTK defined platform targets for build
     targets:
       - StandaloneWindows64
-      - WSAPlayer
       - StandaloneOSX
       - StandaloneLinux64
-      - WebGL
