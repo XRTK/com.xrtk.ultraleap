@@ -66,4 +66,4 @@ extends:
       - WSAPlayer
       - StandaloneOSX
       - StandaloneLinux64
-      - WebGL
+      #- WebGL
