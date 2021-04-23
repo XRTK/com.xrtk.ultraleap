@@ -1,11 +1,7 @@
 # XRTK Ultraleap
 
-This package contains the Ultraleap extension for the [XRTK - Mixed Reality Toolkit](https://github.com/XRTK/XRTK-Core).
+The Ultraleap platform components for the [XRTK - Mixed Reality Toolkit](https://github.com/XRTK/XRTK-Core).
 
-## Supported Features
+## Build Status
 
-### Leap Motion Hand Tracking
-
-`XRTK.Ultraleap` adds hand tracking support using the leap motion sensor to your project. To enable `MixedRealityHandController`
-usage powered by Leap Motion add the `LeapMotionHandControllerDataProvider` to the list of registered data providers in your `MixedRealityInputSystemProfile`.
-Use the `LeapMotionHandControllerDataProviderProfile` to configure hand tracking using leap motion and customize your experience.
+[![Build Status](https://dev.azure.com/xrtk/Mixed%20Reality%20Toolkit/_apis/build/status/com.xrtk.ultraleap?branchName=master)](https://dev.azure.com/xrtk/Mixed%20Reality%20Toolkit/_build/latest?definitionId=51&branchName=master)
