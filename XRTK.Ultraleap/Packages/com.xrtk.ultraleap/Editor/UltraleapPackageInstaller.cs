@@ -4,8 +4,8 @@
 using System.IO;
 using UnityEditor;
 using XRTK.Editor;
-using XRTK.Extensions;
 using XRTK.Editor.Utilities;
+using XRTK.Extensions;
 
 namespace XRTK.Ultraleap.Editor
 {
@@ -13,7 +13,7 @@ namespace XRTK.Ultraleap.Editor
     internal static class UltraleapPackageInstaller
     {
         private static readonly string DefaultPath = $"{MixedRealityPreferences.ProfileGenerationPath}Ultraleap";
-        private static readonly string HiddenPath = Path.GetFullPath($"{PathFinderUtility.ResolvePath<IPathFinder>(typeof(UltraleapPathFinder)).ToForwardSlashes()}\\{MixedRealityPreferences.HIDDEN_PROFILES_PATH}");
+        private static readonly string HiddenPath = Path.GetFullPath($"{PathFinderUtility.ResolvePath<IPathFinder>(typeof(UltraleapPathFinder)).ForwardSlashes()}\\{MixedRealityPreferences.HIDDEN_PROFILES_PATH}");
 
         static UltraleapPackageInstaller()
         {

@@ -5,8 +5,8 @@ using System.IO;
 using System.Linq;
 using UnityEditor;
 using UnityEngine;
-using XRTK.Extensions;
 using XRTK.Editor.Utilities;
+using XRTK.Extensions;
 
 namespace XRTK.Ultraleap.Editor
 {
@@ -92,7 +92,7 @@ namespace XRTK.Ultraleap.Editor
 
             foreach (var directory in directories)
             {
-                Directory.CreateDirectory(directory.Replace(NativePluginPath.ToForwardSlashes(), PluginPath.ToForwardSlashes()));
+                Directory.CreateDirectory(directory.Replace(NativePluginPath.ForwardSlashes(), PluginPath.ForwardSlashes()));
             }
 
             var files = Directory.GetFiles(NativePluginPath, "*.cs", SearchOption.AllDirectories).ToList();
@@ -100,7 +100,7 @@ namespace XRTK.Ultraleap.Editor
 
             foreach (var file in files)
             {
-                File.Copy(file, file.ToForwardSlashes().Replace(NativePluginPath.ToForwardSlashes(), PluginPath.ToForwardSlashes()));
+                File.Copy(file, file.ForwardSlashes().Replace(NativePluginPath.ForwardSlashes(), PluginPath.ForwardSlashes()));
             }
 
             File.Copy($"{NativeRootPath}/readme.txt", $"{PluginPath}/license.txt");
