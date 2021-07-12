@@ -1,23 +1,25 @@
 ﻿// Copyright (c) XRTK. All rights reserved.
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 
+using Leap;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
-using Leap;
+using XRTK.Attributes;
+using XRTK.Definitions.Controllers.Hands;
 using XRTK.Definitions.Devices;
+using XRTK.Definitions.InputSystem;
+using XRTK.Definitions.Platforms;
 using XRTK.Definitions.Utilities;
-using XRTK.Ultraleap.Profiles;
+using XRTK.Extensions;
+using XRTK.Interfaces.CameraSystem;
+using XRTK.Interfaces.InputSystem;
 using XRTK.Providers.Controllers.Hands;
 using XRTK.Services;
 using XRTK.Ultraleap.Definitions;
-using XRTK.Interfaces.InputSystem;
-using XRTK.Definitions.Platforms;
-using XRTK.Attributes;
-using XRTK.Definitions.Controllers.Hands;
 using XRTK.Ultraleap.Extensions;
+using XRTK.Ultraleap.Profiles;
 using XRTK.Utilities;
-using XRTK.Extensions;
 
 namespace XRTK.Ultraleap.Providers.Controllers
 {
@@ -44,12 +46,20 @@ namespace XRTK.Ultraleap.Providers.Controllers
             MaxReconnectionAttempts = profile.MaxReconnectionAttempts;
             ReconnectionInterval = profile.ReconnectionInterval;
 
-            var globalSettingsProfile = MixedRealityToolkit.Instance.ActiveProfile.InputSystemProfile;
-            var isGrippingThreshold = profile.GripThreshold != globalSettingsProfile.GripThreshold
-                ? profile.GripThreshold
-                : globalSettingsProfile.GripThreshold;
+            float gripThreshold;
 
-            postProcessor = new HandDataPostProcessor(TrackedPoses, isGrippingThreshold)
+            if (MixedRealityToolkit.TryGetSystemProfile<IMixedRealityInputSystem, MixedRealityInputSystemProfile>(out var globalSettingsProfile))
+            {
+                gripThreshold = profile.GripThreshold != globalSettingsProfile.GripThreshold
+                    ? profile.GripThreshold
+                    : globalSettingsProfile.GripThreshold;
+            }
+            else
+            {
+                gripThreshold = profile.GripThreshold;
+            }
+
+            postProcessor = new HandDataPostProcessor(TrackedPoses, gripThreshold)
             {
                 PlatformProvidesPointerPose = true
             };
@@ -150,7 +160,12 @@ namespace XRTK.Ultraleap.Providers.Controllers
             if (trackingOriginConversionProxy.IsNull())
             {
                 trackingOriginConversionProxy = new GameObject("Ultraleap Tracking Origin Conversion Proxy");
-                trackingOriginConversionProxy.transform.SetParent(MixedRealityToolkit.CameraSystem.MainCameraRig.PlayspaceTransform);
+                var playspaceTransform = MixedRealityToolkit.TryGetSystem<IMixedRealityCameraSystem>(out var cameraSystem)
+                    ? cameraSystem.MainCameraRig.PlayspaceTransform
+                    : CameraCache.Main.transform.parent != null
+                        ? CameraCache.Main.transform.parent
+                        : CameraCache.Main.transform;
+                trackingOriginConversionProxy.transform.SetParent(playspaceTransform);
                 trackingOriginConversionProxy.SetActive(false);
                 handRootConversionProxy = new GameObject("Hand Root Conversion Proxy");
                 handRootConversionProxy.transform.SetParent(trackingOriginConversionProxy.transform);
@@ -327,10 +342,9 @@ namespace XRTK.Ultraleap.Providers.Controllers
         private void UpdateTrackingOrigin()
         {
             var deviceOffsetPose = GetCurrentDeviceOffsetPose();
-            var cameraTransform = MixedRealityToolkit.CameraSystem != null
-                        ? MixedRealityToolkit.CameraSystem.MainCameraRig.PlayerCamera.transform
-                        : CameraCache.Main.transform;
-
+            var cameraTransform = MixedRealityToolkit.TryGetSystem<IMixedRealityCameraSystem>(out var cameraSystem)
+                ? cameraSystem.MainCameraRig.PlayerCamera.transform
+                : CameraCache.Main.transform;
             var position = cameraTransform.localPosition + cameraTransform.localRotation * deviceOffsetPose.Position;
             var rotation = cameraTransform.localRotation * deviceOffsetPose.Rotation;
 
@@ -441,7 +455,11 @@ namespace XRTK.Ultraleap.Providers.Controllers
             AddController(detectedController);
             activeControllers.Add(handedness, detectedController);
             handIdMap.Add(handedness, handId);
-            MixedRealityToolkit.InputSystem?.RaiseSourceDetected(detectedController.InputSource, detectedController);
+
+            if (MixedRealityToolkit.TryGetSystem<IMixedRealityInputSystem>(out var inputSystem))
+            {
+                inputSystem.RaiseSourceDetected(detectedController.InputSource, detectedController);
+            }
 
             return detectedController;
         }
@@ -450,7 +468,10 @@ namespace XRTK.Ultraleap.Providers.Controllers
         {
             if (TryGetController(handedness, out var controller))
             {
-                MixedRealityToolkit.InputSystem?.RaiseSourceLost(controller.InputSource, controller);
+                if (MixedRealityToolkit.TryGetSystem<IMixedRealityInputSystem>(out var inputSystem))
+                {
+                    inputSystem.RaiseSourceLost(controller.InputSource, controller);
+                }
 
                 if (removeFromRegistry)
                 {
@@ -642,8 +663,11 @@ namespace XRTK.Ultraleap.Providers.Controllers
         /// <returns>The <see cref="Hand"/>'s root <see cref="MixedRealityPose"/>.</returns>
         private MixedRealityPose GetHandRootPose(Hand hand)
         {
-            var playspaceTransform = MixedRealityToolkit.CameraSystem.MainCameraRig.PlayspaceTransform;
-
+            var playspaceTransform = MixedRealityToolkit.TryGetSystem<IMixedRealityCameraSystem>(out var cameraSystem)
+                ? cameraSystem.MainCameraRig.PlayspaceTransform
+                : CameraCache.Main.transform.parent != null
+                    ? CameraCache.Main.transform.parent
+                    : CameraCache.Main.transform;
             handRootConversionProxy.transform.position = hand.WristPosition.ToVector3();
             handRootConversionProxy.transform.rotation = hand.Arm.Basis.rotation.ToQuaternion();
 
@@ -652,14 +676,13 @@ namespace XRTK.Ultraleap.Providers.Controllers
                 Quaternion.Inverse(playspaceTransform.rotation) * handRootConversionProxy.transform.rotation);
         }
 
-        private MixedRealityPose GetPointerPose(MixedRealityPose handRootPose, MixedRealityPose[] jointPoses)
+        private MixedRealityPose GetPointerPose(MixedRealityPose handRootPose, MixedRealityPose[] pointerJointPoses)
         {
-            var cameraTransform = MixedRealityToolkit.CameraSystem != null
-                        ? MixedRealityToolkit.CameraSystem.MainCameraRig.PlayerCamera.transform
-                        : CameraCache.Main.transform;
-
-            var thumbProximalPose = jointPoses[(int)TrackedHandJoint.ThumbProximal];
-            var indexDistalPose = jointPoses[(int)TrackedHandJoint.IndexDistal];
+            var cameraTransform = MixedRealityToolkit.TryGetSystem<IMixedRealityCameraSystem>(out var cameraSystem)
+                ? cameraSystem.MainCameraRig.PlayerCamera.transform
+                : CameraCache.Main.transform;
+            var thumbProximalPose = pointerJointPoses[(int)TrackedHandJoint.ThumbProximal];
+            var indexDistalPose = pointerJointPoses[(int)TrackedHandJoint.IndexDistal];
             var pointerPosition = handRootPose.Position +
                 handRootPose.Rotation * thumbProximalPose.Position +
                 (indexDistalPose.Position - thumbProximalPose.Position) * .5f;
