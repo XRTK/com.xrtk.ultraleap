@@ -5,8 +5,8 @@ using System.IO;
 using System.Linq;
 using UnityEditor;
 using UnityEngine;
-using XRTK.Extensions;
 using XRTK.Editor.Utilities;
+using XRTK.Extensions;
 
 namespace XRTK.Ultraleap.Editor
 {
@@ -92,7 +92,7 @@ namespace XRTK.Ultraleap.Editor
 
             foreach (var directory in directories)
             {
-                Directory.CreateDirectory(directory.Replace(NativePluginPath.ToForwardSlashes(), PluginPath.ToForwardSlashes()));
+                Directory.CreateDirectory(directory.Replace(NativePluginPath.BackSlashes(), PluginPath.BackSlashes()));
             }
 
             var files = Directory.GetFiles(NativePluginPath, "*.cs", SearchOption.AllDirectories).ToList();
@@ -100,12 +100,13 @@ namespace XRTK.Ultraleap.Editor
 
             foreach (var file in files)
             {
-                File.Copy(file, file.ToForwardSlashes().Replace(NativePluginPath.ToForwardSlashes(), PluginPath.ToForwardSlashes()));
+                File.Copy(file, file.BackSlashes().Replace(NativePluginPath.BackSlashes(), PluginPath.BackSlashes()));
             }
 
             File.Copy($"{NativeRootPath}/readme.txt", $"{PluginPath}/license.txt");
             File.Copy($"{NativeRootPath}/Version.txt", $"{PluginPath}/Version.txt");
             File.Copy($"{NativePluginPath}/LeapCSharp/LeapMotion.LeapCSharp.asmdef", $"{PluginPath}/LeapCSharp/LeapMotion.LeapCSharp.asmdef");
+            File.Copy($"{NativePluginPath}/LeapCSharp/LeapMotion.LeapCSharp.asmdef.meta", $"{PluginPath}/LeapCSharp/LeapMotion.LeapCSharp.asmdef.meta");
         }
 
         private static void SetPluginMeta()
@@ -139,7 +140,7 @@ namespace XRTK.Ultraleap.Editor
             x64Importer.SetCompatibleWithPlatform(BuildTarget.StandaloneWindows64, true);
             x64Importer.SetPlatformData(BuildTarget.StandaloneWindows64, "CPU", "x86_64");
             x64Importer.SetCompatibleWithPlatform(BuildTarget.WSAPlayer, true);
-            x64Importer.SetPlatformData(BuildTarget.WSAPlayer, "CPU", "x86_64");
+            x64Importer.SetPlatformData(BuildTarget.WSAPlayer, "CPU", "X64");
             x64Importer.SaveAndReimport();
         }
 
