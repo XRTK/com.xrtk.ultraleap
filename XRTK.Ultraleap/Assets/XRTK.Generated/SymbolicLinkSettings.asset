@@ -16,12 +16,3 @@ MonoBehaviour:
   - sourceRelativePath: /XRTK.Ultraleap/Packages/com.xrtk.ultraleap/Profiles~
     targetRelativePath: /XRTK.Ultraleap/Assets/XRTK.Generated/Ultraleap/Profiles
     isActive: 1
-  - sourceRelativePath: /Submodules/UnityModules/Assets/Plugins/LeapMotion/Core/Plugins/LeapCSharp
-    targetRelativePath: /XRTK.Ultraleap/Packages/com.xrtk.ultraleap/Runtime/Plugins/LeapCSharp
-    isActive: 1
-  - sourceRelativePath: /Submodules/UnityModules/Assets/Plugins/LeapMotion/Core/Plugins/x86
-    targetRelativePath: /XRTK.Ultraleap/Packages/com.xrtk.ultraleap/Runtime/Plugins/x86
-    isActive: 1
-  - sourceRelativePath: /Submodules/UnityModules/Assets/Plugins/LeapMotion/Core/Plugins/x86_64
-    targetRelativePath: /XRTK.Ultraleap/Packages/com.xrtk.ultraleap/Runtime/Plugins/x86_64
-    isActive: 1
