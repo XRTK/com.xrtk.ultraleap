@@ -168,10 +168,10 @@ PlayerSettings:
   androidSupportedAspectRatio: 1
   androidMaxAspectRatio: 2.1
   applicationIdentifier:
-    Android: com.xrtk.ProductName
-    Lumin: com.xrtk.ProductName
-    Standalone: com.xrtk.ProductName
-    Windows Store Apps: com.XRTK.XRTK.Ultraleap
+    Android: com.xrtk.ultraleap
+    Lumin: com.xrtk.ultraleap
+    Standalone: com.xrtk.ultraleap
+    Windows Store Apps: com.xrtk.ultraleap
     iPhone: com.xrtk.ProductName
   buildNumber: {}
   AndroidBundleVersionCode: 1
