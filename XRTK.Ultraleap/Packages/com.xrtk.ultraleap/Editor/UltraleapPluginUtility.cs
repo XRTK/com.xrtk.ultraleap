@@ -92,7 +92,7 @@ namespace XRTK.Ultraleap.Editor
 
             foreach (var directory in directories)
             {
-                Directory.CreateDirectory(directory.Replace(NativePluginPath.ForwardSlashes(), PluginPath.ForwardSlashes()));
+                Directory.CreateDirectory(directory.Replace(NativePluginPath.BackSlashes(), PluginPath.BackSlashes()));
             }
 
             var files = Directory.GetFiles(NativePluginPath, "*.cs", SearchOption.AllDirectories).ToList();
@@ -100,7 +100,7 @@ namespace XRTK.Ultraleap.Editor
 
             foreach (var file in files)
             {
-                File.Copy(file, file.ForwardSlashes().Replace(NativePluginPath.ForwardSlashes(), PluginPath.ForwardSlashes()));
+                File.Copy(file, file.BackSlashes().Replace(NativePluginPath.BackSlashes(), PluginPath.BackSlashes()));
             }
 
             File.Copy($"{NativeRootPath}/readme.txt", $"{PluginPath}/license.txt");
