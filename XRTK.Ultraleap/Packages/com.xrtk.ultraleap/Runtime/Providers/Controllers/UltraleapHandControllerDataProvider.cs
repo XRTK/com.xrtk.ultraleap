@@ -113,7 +113,7 @@ namespace XRTK.Ultraleap.Providers.Controllers
         private int ReconnectionInterval { get; }
 
         /// <summary>
-        /// Gets the data provider's currently configured frame optmization mode.
+        /// Gets the data provider's currently configured frame optimization mode.
         /// </summary>
         private UltraleapFrameOptimizationMode FrameOptimizationMode { get; }
 
@@ -151,6 +151,8 @@ namespace XRTK.Ultraleap.Providers.Controllers
         {
             base.Enable();
 
+            if (!Application.isPlaying) { return; }
+
             CreateController();
 
             untransformedFixedFrame = new Frame();
@@ -177,6 +179,9 @@ namespace XRTK.Ultraleap.Providers.Controllers
         /// <inheritdoc />
         public override void Update()
         {
+            base.Update();
+
+            if (!Application.isPlaying) { return; }
             if (!CheckConnectionIntegrity())
             {
                 return;
@@ -189,6 +194,7 @@ namespace XRTK.Ultraleap.Providers.Controllers
             }
 
             ultraleapController.Frame(untransformedUpdateFrame);
+
             if (untransformedUpdateFrame != null)
             {
                 TransformFrame(untransformedUpdateFrame, transformedUpdateFrame);
@@ -199,6 +205,10 @@ namespace XRTK.Ultraleap.Providers.Controllers
         /// <inheritdoc />
         public override void FixedUpdate()
         {
+            base.FixedUpdate();
+
+            if (!Application.isPlaying) { return; }
+
             if (FrameOptimizationMode == UltraleapFrameOptimizationMode.ReuseUpdateForPhysics)
             {
                 FrameReady(transformedUpdateFrame);
@@ -216,6 +226,10 @@ namespace XRTK.Ultraleap.Providers.Controllers
         /// <inheritdoc />
         public override void Disable()
         {
+            base.Disable();
+
+            if (!Application.isPlaying) { return; }
+
             DestroyController();
 
             foreach (var activeController in activeControllers)
@@ -240,8 +254,9 @@ namespace XRTK.Ultraleap.Providers.Controllers
         /// <inheritdoc />
         public override void Destroy()
         {
-            DestroyController();
             base.Destroy();
+            if (!Application.isPlaying) { return; }
+            DestroyController();
         }
 
         #endregion Mixed Reality Service Lifecycle
@@ -256,6 +271,7 @@ namespace XRTK.Ultraleap.Providers.Controllers
             }
 
             ultraleapController = new Controller();
+
             if (ultraleapController.IsConnected)
             {
                 InitializeFlags();
@@ -316,9 +332,11 @@ namespace XRTK.Ultraleap.Providers.Controllers
                 numberOfReconnectionAttempts = 0;
                 return true;
             }
-            else if (numberOfReconnectionAttempts < MaxReconnectionAttempts)
+
+            if (numberOfReconnectionAttempts < MaxReconnectionAttempts)
             {
                 framesSinceServiceConnectionChecked++;
+
                 if (framesSinceServiceConnectionChecked > ReconnectionInterval)
                 {
                     framesSinceServiceConnectionChecked = 0;
