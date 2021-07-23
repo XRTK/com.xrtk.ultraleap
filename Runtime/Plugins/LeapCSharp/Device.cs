@@ -94,21 +94,40 @@ namespace Leap {
     internal void UpdateStatus(eLeapDeviceStatus status)
     {
         if ((status & eLeapDeviceStatus.eLeapDeviceStatus_Streaming) == eLeapDeviceStatus.eLeapDeviceStatus_Streaming)
+        {
             IsStreaming = true;
+        }
         else
+        {
             IsStreaming = false;
+        }
+
         if ((status & eLeapDeviceStatus.eLeapDeviceStatus_Smudged) == eLeapDeviceStatus.eLeapDeviceStatus_Smudged)
+        {
             IsSmudged = true;
+        }
         else
+        {
             IsSmudged = false;
+        }
+
         if ((status & eLeapDeviceStatus.eLeapDeviceStatus_Robust) == eLeapDeviceStatus.eLeapDeviceStatus_Robust)
+        {
             IsLightingBad = true;
+        }
         else
+        {
             IsLightingBad = false;
+        }
+
         if ((status & eLeapDeviceStatus.eLeapDeviceStatus_LowResource) == eLeapDeviceStatus.eLeapDeviceStatus_LowResource)
+        {
             IsLowResource = true;
+        }
         else
+        {
             IsLowResource = false;
+        }
     }
 
     /// <summary>
@@ -231,7 +250,10 @@ namespace Leap {
         result = LeapC.GetDeviceInfo(InternalHandle, ref deviceInfo);
 
         if (result != eLeapRS.eLeapRS_Success)
+        {
             return 0;
+        }
+
         uint status = deviceInfo.status;
         System.Runtime.InteropServices.Marshal.FreeCoTaskMem(deviceInfo.serial);
         return status;

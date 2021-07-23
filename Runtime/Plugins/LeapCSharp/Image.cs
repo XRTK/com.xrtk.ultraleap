@@ -58,7 +58,9 @@ namespace Leap {
     /// </summary>
     public byte[] Data(CameraType camera) {
       if (camera != CameraType.LEFT && camera != CameraType.RIGHT)
-        return null;
+      {
+          return null;
+      }
 
       return imageData(camera).AsByteArray;
     }
@@ -71,7 +73,9 @@ namespace Leap {
     /// </summary>
     public UInt32 ByteOffset(CameraType camera) {
       if (camera != CameraType.LEFT && camera != CameraType.RIGHT)
-        return 0;
+      {
+          return 0;
+      }
 
       return imageData(camera).byteOffset;
     }
@@ -116,7 +120,9 @@ namespace Leap {
     /// </summary>
     public float[] Distortion(CameraType camera) {
       if (camera != CameraType.LEFT && camera != CameraType.RIGHT)
-        return null;
+      {
+          return null;
+      }
 
       return imageData(camera).DistortionData.Data;
     }
@@ -307,7 +313,9 @@ namespace Leap {
     /// </summary>
     public float RayOffsetX(CameraType camera) {
       if (camera != CameraType.LEFT && camera != CameraType.RIGHT)
-        return 0;
+      {
+          return 0;
+      }
 
       return imageData(camera).RayOffsetX;
     }
@@ -322,7 +330,9 @@ namespace Leap {
     /// </summary>
     public float RayOffsetY(CameraType camera) {
       if (camera != CameraType.LEFT && camera != CameraType.RIGHT)
-        return 0;
+      {
+          return 0;
+      }
 
       return imageData(camera).RayOffsetY;
     }
@@ -337,7 +347,9 @@ namespace Leap {
     /// </summary>
     public float RayScaleX(CameraType camera) {
       if (camera != CameraType.LEFT && camera != CameraType.RIGHT)
-        return 0;
+      {
+          return 0;
+      }
 
       return imageData(camera).RayScaleX;
     }
@@ -352,7 +364,9 @@ namespace Leap {
     /// </summary>
     public float RayScaleY(CameraType camera) {
       if (camera != CameraType.LEFT && camera != CameraType.RIGHT)
-        return 0;
+      {
+          return 0;
+      }
 
       return imageData(camera).RayScaleY;
     }

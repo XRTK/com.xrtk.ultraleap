@@ -79,7 +79,9 @@ namespace Leap {
             Width == LeapInternal.LeapC.DistortionSize &&
             Height == LeapInternal.LeapC.DistortionSize &&
             Data.Length == Width * Height * 2)
-          return true;
+        {
+            return true;
+        }
 
         return false;
       }

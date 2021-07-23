@@ -65,7 +65,10 @@ namespace Leap {
     public event EventHandler<LeapEventArgs> Init {
       add {
         if (_hasInitialized)
-          value(this, new LeapEventArgs(LeapEvent.EVENT_INIT));
+        {
+            value(this, new LeapEventArgs(LeapEvent.EVENT_INIT));
+        }
+
         _init += value;
       }
       remove { _init -= value; }
@@ -81,7 +84,10 @@ namespace Leap {
     public event EventHandler<ConnectionEventArgs> Connect {
       add {
         if (_hasConnected)
-          value(this, new ConnectionEventArgs());
+        {
+            value(this, new ConnectionEventArgs());
+        }
+
         _connect += value;
       }
       remove { _connect -= value; }
@@ -623,7 +629,10 @@ namespace Leap {
     public Config Config {
       get {
         if (_config == null)
-          _config = new Config(this._connection.ConnectionKey);
+        {
+            _config = new Config(this._connection.ConnectionKey);
+        }
+
         return _config;
       }
     }

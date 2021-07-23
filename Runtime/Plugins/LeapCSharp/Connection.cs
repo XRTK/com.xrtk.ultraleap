@@ -82,7 +82,9 @@ namespace LeapInternal {
       add {
         _leapInit += value;
         if (_leapConnection != IntPtr.Zero)
-          value(this, new LeapEventArgs(LeapEvent.EVENT_INIT));
+        {
+            value(this, new LeapEventArgs(LeapEvent.EVENT_INIT));
+        }
       }
       remove { _leapInit -= value; }
     }
@@ -92,7 +94,9 @@ namespace LeapInternal {
       add {
         _leapConnectionEvent += value;
         if (IsServiceConnected)
-          value(this, new ConnectionEventArgs());
+        {
+            value(this, new ConnectionEventArgs());
+        }
       }
       remove { _leapConnectionEvent -= value; }
     }
@@ -127,7 +131,9 @@ namespace LeapInternal {
     // Protected implementation of Dispose pattern.
     protected virtual void Dispose(bool disposing) {
       if (_disposed)
-        return;
+      {
+          return;
+      }
 
       if (disposing) {
       }
@@ -154,7 +160,9 @@ namespace LeapInternal {
 
     public void Start() {
       if (_isRunning)
-        return;
+      {
+          return;
+      }
 
       eLeapRS result;
       if (_leapConnection == IntPtr.Zero) {
@@ -199,7 +207,9 @@ namespace LeapInternal {
 
     public void Stop() {
       if (!_isRunning)
-        return;
+      {
+          return;
+      }
 
       _isRunning = false;
 
@@ -462,7 +472,10 @@ namespace LeapInternal {
     {
         var device = _devices.FindDeviceByHandle(statusEvent.device.handle);
         if (device == null)
+        {
             return;
+        }
+
         device.UpdateStatus(statusEvent.status);
     }
 
@@ -470,7 +483,9 @@ namespace LeapInternal {
     private void handleDevice(ref LEAP_DEVICE_EVENT deviceMsg) {
       IntPtr deviceHandle = deviceMsg.device.handle;
       if (deviceHandle == IntPtr.Zero)
-        return;
+      {
+          return;
+      }
 
       LEAP_DEVICE_INFO deviceInfo = new LEAP_DEVICE_INFO();
       eLeapRS result;
@@ -478,13 +493,17 @@ namespace LeapInternal {
       IntPtr device;
       result = LeapC.OpenDevice(deviceMsg.device, out device);
       if (result != eLeapRS.eLeapRS_Success)
-        return;
+      {
+          return;
+      }
 
       deviceInfo.serial = IntPtr.Zero;
       deviceInfo.size = (uint)Marshal.SizeOf(deviceInfo);
       result = LeapC.GetDeviceInfo(device, ref deviceInfo); //Query the serial length
       if (result != eLeapRS.eLeapRS_Success)
-        return;
+      {
+          return;
+      }
 
       deviceInfo.serial = Marshal.AllocCoTaskMem((int)deviceInfo.serial_length);
       result = LeapC.GetDeviceInfo(device, ref deviceInfo); //Query the serial
@@ -554,7 +573,10 @@ namespace LeapInternal {
       string config_key = "";
       _configRequests.TryGetValue(configEvent.requestId, out config_key);
       if (config_key != null)
-        _configRequests.Remove(configEvent.requestId);
+      {
+          _configRequests.Remove(configEvent.requestId);
+      }
+
       if (LeapConfigChange != null) {
         LeapConfigChange.DispatchOnContext(this, EventContext,
           new ConfigChangeEventArgs(config_key, configEvent.status != false, configEvent.requestId));
@@ -567,7 +589,9 @@ namespace LeapInternal {
       string config_key = "";
       _configRequests.TryGetValue(config_response_evt.requestId, out config_key);
       if (config_key != null)
-        _configRequests.Remove(config_response_evt.requestId);
+      {
+          _configRequests.Remove(config_response_evt.requestId);
+      }
 
       Config.ValueType dataType;
       object value;
@@ -784,7 +808,9 @@ namespace LeapInternal {
     public bool IsServiceConnected {
       get {
         if (_leapConnection == IntPtr.Zero)
-          return false;
+        {
+            return false;
+        }
 
         LEAP_CONNECTION_INFO pInfo = new LEAP_CONNECTION_INFO();
         pInfo.size = (uint)Marshal.SizeOf(pInfo);
@@ -792,7 +818,9 @@ namespace LeapInternal {
         reportAbnormalResults("LeapC GetConnectionInfo call was ", result);
 
         if (pInfo.status == eLeapConnectionStatus.eLeapConnectionStatus_Connected)
-          return true;
+        {
+            return true;
+        }
 
         return false;
       }
@@ -863,7 +891,10 @@ namespace LeapInternal {
         eLeapRS result = LeapC.GetPointMapping(_leapConnection, buffer, ref size);
         if (result == eLeapRS.eLeapRS_InsufficientBuffer) {
           if (buffer != IntPtr.Zero)
-            Marshal.FreeHGlobal(buffer);
+          {
+              Marshal.FreeHGlobal(buffer);
+          }
+
           buffer = Marshal.AllocHGlobal((Int32)size);
           continue;
         }
