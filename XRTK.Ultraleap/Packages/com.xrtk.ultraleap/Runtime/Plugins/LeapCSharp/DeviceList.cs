@@ -31,7 +31,9 @@ namespace Leap {
     public Device FindDeviceByHandle(IntPtr deviceHandle) {
       for (int d = 0; d < this.Count; d++) {
         if (this[d].Handle == deviceHandle)
-          return this[d];
+        {
+            return this[d];
+        }
       }
       return null;
     }

@@ -197,20 +197,38 @@ namespace Leap {
     public float this[uint index] {
       get {
         if (index == 0)
-          return x;
+        {
+            return x;
+        }
+
         if (index == 1)
-          return y;
+        {
+            return y;
+        }
+
         if (index == 2)
-          return z;
+        {
+            return z;
+        }
+
         throw new IndexOutOfRangeException();
       }
       set {
         if (index == 0)
-          x = value;
+        {
+            x = value;
+        }
+
         if (index == 1)
-          y = value;
+        {
+            y = value;
+        }
+
         if (index == 2)
-          z = value;
+        {
+            z = value;
+        }
+
         throw new IndexOutOfRangeException();
       }
     }

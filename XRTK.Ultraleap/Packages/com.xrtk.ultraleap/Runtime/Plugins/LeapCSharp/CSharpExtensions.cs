@@ -66,7 +66,10 @@ namespace Leap {
     /// </summary>
     public static void Dispatch<T>(this EventHandler<T> handler,
                                 object sender, T eventArgs) where T : EventArgs {
-      if (handler != null) handler(sender, eventArgs);
+      if (handler != null)
+      {
+          handler(sender, eventArgs);
+      }
     }
 
     /// <summary>
@@ -83,7 +86,9 @@ namespace Leap {
           System.Threading.SendOrPostCallback evt = (spc_args) => { handler(sender, spc_args as T); };
           context.Post(evt, eventArgs);
         } else
-          handler(sender, eventArgs);
+        {
+            handler(sender, eventArgs);
+        }
       }
     }
   }

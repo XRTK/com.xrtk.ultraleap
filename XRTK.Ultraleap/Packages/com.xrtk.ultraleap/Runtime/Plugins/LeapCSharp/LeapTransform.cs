@@ -73,7 +73,9 @@ namespace Leap {
     /// </summary>
     public LeapQuaternion TransformQuaternion(LeapQuaternion rhs) {
       if (_quaternionDirty)
-        throw new InvalidOperationException("Calling TransformQuaternion after Basis vectors have been modified.");
+      {
+          throw new InvalidOperationException("Calling TransformQuaternion after Basis vectors have been modified.");
+      }
 
       if (_flip) {
         // Mirror the axis of rotation across the flip axis.
@@ -204,7 +206,10 @@ namespace Leap {
     public LeapQuaternion rotation {
       get {
         if (_quaternionDirty)
-          throw new InvalidOperationException("Requesting rotation after Basis vectors have been modified.");
+        {
+            throw new InvalidOperationException("Requesting rotation after Basis vectors have been modified.");
+        }
+
         return _quaternion;
       }
       set {

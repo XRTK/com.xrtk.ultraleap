@@ -45,7 +45,9 @@ namespace LeapInternal {
           }
         }
         if (Count < Capacity)
-          Count++;
+        {
+            Count++;
+        }
 
         lock (array) {
           array[current] = item;
