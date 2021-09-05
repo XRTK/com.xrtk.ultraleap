@@ -72,3 +72,5 @@ artifacts/
 Assets/ThirdParty/
 Assets/ThirdParty.meta
 --Version/
+XRTK.Ultraleap/Packages/com.xrtk.ultraleap/Runtime/Plugins/LeapCSharp/AssemblyInfo.cs
+XRTK.Ultraleap/Packages/com.xrtk.ultraleap/Runtime/Plugins/LeapCSharp/AssemblyInfo.cs.meta
