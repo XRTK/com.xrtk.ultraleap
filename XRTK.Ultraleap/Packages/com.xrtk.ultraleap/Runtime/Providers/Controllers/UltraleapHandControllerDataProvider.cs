@@ -163,12 +163,12 @@ namespace XRTK.Ultraleap.Providers.Controllers
             if (trackingOriginConversionProxy.IsNull())
             {
                 trackingOriginConversionProxy = new GameObject("Ultraleap Tracking Origin Conversion Proxy");
-                var playspaceTransform = MixedRealityToolkit.TryGetSystem<IMixedRealityCameraSystem>(out var cameraSystem)
-                    ? cameraSystem.MainCameraRig.PlayspaceTransform
+                var rigTransform = MixedRealityToolkit.TryGetSystem<IMixedRealityCameraSystem>(out var cameraSystem)
+                    ? cameraSystem.MainCameraRig.RigTransform
                     : CameraCache.Main.transform.parent != null
                         ? CameraCache.Main.transform.parent
                         : CameraCache.Main.transform;
-                trackingOriginConversionProxy.transform.SetParent(playspaceTransform);
+                trackingOriginConversionProxy.transform.SetParent(rigTransform);
                 trackingOriginConversionProxy.SetActive(false);
                 handRootConversionProxy = new GameObject("Hand Root Conversion Proxy");
                 handRootConversionProxy.transform.SetParent(trackingOriginConversionProxy.transform);
@@ -682,8 +682,8 @@ namespace XRTK.Ultraleap.Providers.Controllers
         /// <returns>The <see cref="Hand"/>'s root <see cref="MixedRealityPose"/>.</returns>
         private MixedRealityPose GetHandRootPose(Hand hand)
         {
-            var playspaceTransform = MixedRealityToolkit.TryGetSystem<IMixedRealityCameraSystem>(out var cameraSystem)
-                ? cameraSystem.MainCameraRig.PlayspaceTransform
+            var rigTransform = MixedRealityToolkit.TryGetSystem<IMixedRealityCameraSystem>(out var cameraSystem)
+                ? cameraSystem.MainCameraRig.RigTransform
                 : CameraCache.Main.transform.parent != null
                     ? CameraCache.Main.transform.parent
                     : CameraCache.Main.transform;
@@ -691,8 +691,8 @@ namespace XRTK.Ultraleap.Providers.Controllers
             handRootConversionProxy.transform.rotation = hand.Arm.Basis.rotation.ToQuaternion();
 
             return new MixedRealityPose(
-                playspaceTransform.InverseTransformPoint(handRootConversionProxy.transform.position),
-                Quaternion.Inverse(playspaceTransform.rotation) * handRootConversionProxy.transform.rotation);
+                rigTransform.InverseTransformPoint(handRootConversionProxy.transform.position),
+                Quaternion.Inverse(rigTransform.rotation) * handRootConversionProxy.transform.rotation);
         }
 
         private MixedRealityPose GetPointerPose(MixedRealityPose handRootPose, MixedRealityPose[] pointerJointPoses)
