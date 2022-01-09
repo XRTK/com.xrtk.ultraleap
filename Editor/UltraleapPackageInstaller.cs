@@ -13,7 +13,7 @@ namespace XRTK.Ultraleap.Editor
     internal static class UltraleapPackageInstaller
     {
         private static readonly string DefaultPath = $"{MixedRealityPreferences.ProfileGenerationPath}Ultraleap";
-        private static readonly string HiddenPath = Path.GetFullPath($"{PathFinderUtility.ResolvePath<IPathFinder>(typeof(UltraleapPathFinder)).BackSlashes()}\\{MixedRealityPreferences.HIDDEN_PROFILES_PATH}");
+        private static readonly string HiddenPath = Path.GetFullPath($"{PathFinderUtility.ResolvePath<IPathFinder>(typeof(UltraleapPathFinder)).BackSlashes()}{Path.DirectorySeparatorChar}{MixedRealityPreferences.HIDDEN_PROFILES_PATH}");
 
         static UltraleapPackageInstaller()
         {
@@ -28,7 +28,7 @@ namespace XRTK.Ultraleap.Editor
         [MenuItem("Mixed Reality Toolkit/Packages/Install Ultraleap Package Assets...", true)]
         private static bool ImportPackageAssetsValidation()
         {
-            return !Directory.Exists($"{DefaultPath}\\Profiles");
+            return !Directory.Exists($"{DefaultPath}{Path.DirectorySeparatorChar}Profiles");
         }
 
         [MenuItem("Mixed Reality Toolkit/Packages/Install Ultraleap Package Assets...")]
@@ -42,7 +42,7 @@ namespace XRTK.Ultraleap.Editor
         {
             if (!EditorPreferences.Get($"{nameof(UltraleapPackageInstaller)}.Profiles", false))
             {
-                EditorPreferences.Set($"{nameof(UltraleapPackageInstaller)}.Profiles", PackageInstaller.TryInstallAssets(HiddenPath, $"{DefaultPath}\\Profiles"));
+                EditorPreferences.Set($"{nameof(UltraleapPackageInstaller)}.Profiles", PackageInstaller.TryInstallAssets(HiddenPath, $"{DefaultPath}{Path.DirectorySeparatorChar}Profiles"));
             }
         }
     }
