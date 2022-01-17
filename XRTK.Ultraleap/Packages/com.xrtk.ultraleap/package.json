@@ -11,7 +11,7 @@
     "reality",
     "ultraleap"
   ],
-  "version": "0.3.0",
+  "version": "0.3.0-preview.13",
   "unity": "2019.4",
   "license": "MIT",
   "repository": {
@@ -20,7 +20,7 @@
   },
   "author": "XRTK Team (https://github.com/XRTK)",
   "dependencies": {
-    "com.xrtk.core": "0.3.0-preview.37"
+    "com.xrtk.core": "0.3.0-preview.49"
   },
   "profiles": [
     {
