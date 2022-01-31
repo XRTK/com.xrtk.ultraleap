@@ -11,16 +11,16 @@
     "reality",
     "ultraleap"
   ],
-  "version": "0.3.0",
+  "version": "0.3.0-preview.14",
   "unity": "2020.3",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Ultraleap.git"
+    "url": "git+https://github.com/com.xrtk.ultraleap.git"
   },
   "author": "XRTK Team (https://github.com/XRTK)",
   "dependencies": {
-    "com.xrtk.core": "0.3.0-preview.42"
+    "com.xrtk.core": "0.3.0-preview.55"
   },
   "profiles": [
     {
