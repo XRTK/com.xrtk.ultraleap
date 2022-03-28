@@ -1,0 +1,21 @@
+{
+    "name": "XRTK.Ultraleap",
+    "references": [
+        "GUID:f3241d040533491e8a1e2714b27c3111",
+        "GUID:2ee0542102ac1084e8d9a910885c1e81"
+    ],
+    "includePlatforms": [
+        "Editor",
+        "WSA",
+        "WindowsStandalone32",
+        "WindowsStandalone64"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": true,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
