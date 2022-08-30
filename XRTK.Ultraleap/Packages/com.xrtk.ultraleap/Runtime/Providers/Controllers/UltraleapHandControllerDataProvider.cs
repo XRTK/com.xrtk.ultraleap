@@ -28,6 +28,7 @@ namespace XRTK.Ultraleap.Providers.Controllers
     /// sensors, like e.g. the Leap Motion device, by providing <see cref="HandData"/> to the
     /// <see cref="MixedRealityHandController"/>.
     /// </summary>
+    [Obsolete]
     [RuntimePlatform(typeof(UniversalWindowsPlatform))]
     [RuntimePlatform(typeof(WindowsStandalonePlatform))]
     [System.Runtime.InteropServices.Guid("61cec407-ffa4-4a5c-b96a-5229348f85c2")]

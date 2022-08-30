@@ -1,6 +1,7 @@
 ﻿// Copyright (c) XRTK. All rights reserved.
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 
+using System;
 using UnityEditor;
 using UnityEngine;
 using XRTK.Editor.Extensions;
@@ -13,6 +14,7 @@ namespace XRTK.Ultraleap.Editor.Inspectors
     /// <summary>
     /// Default inspector for the <see cref="UltraleapHandControllerDataProviderProfile"/> asset.
     /// </summary>
+    [Obsolete]
     [CustomEditor(typeof(UltraleapHandControllerDataProviderProfile))]
     public class UltraleapHandControllerDataProviderProfileInspector : BaseMixedRealityHandControllerDataProviderProfileInspector
     {

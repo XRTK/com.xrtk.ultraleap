@@ -1,6 +1,7 @@
 ﻿// Copyright (c) XRTK. All rights reserved.
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 
+using System;
 using UnityEngine;
 using XRTK.Definitions.Controllers.Hands;
 using XRTK.Definitions.Utilities;
@@ -12,6 +13,7 @@ namespace XRTK.Ultraleap.Profiles
     /// Configuration profile for the <see cref="Providers.Controllers.UltraleapHandControllerDataProvider"/> powering
     /// the <see cref="XRTK.Providers.Controllers.Hands.MixedRealityHandController"/>.
     /// </summary>
+    [Obsolete]
     [CreateAssetMenu(menuName = "Mixed Reality Toolkit/Input System/Controller Data Providers/Ultraleap Hand", fileName = "UltraleapHandControllerDataProviderProfile", order = (int)CreateProfileMenuItemIndices.Input)]
     public class UltraleapHandControllerDataProviderProfile : BaseHandControllerDataProviderProfile
     {
